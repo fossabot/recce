@@ -1,0 +1,45 @@
+before_install:
+- npm install -g npm
+- npm install -g greenkeeper-lockfile@1
+install: npm install
+before_script: greenkeeper-lockfile-update
+script:
+- gpg --keyserver ha.pool.sks-keyservers.net --recv-key 13F26F82E955B8B8CE469054F29CCEBC83FD4525
+- "./manage ci"
+after_script: greenkeeper-lockfile-upload
+after_success:
+- npm run report-coverage
+language: node_js
+env:
+  matrix:
+  - NPM_PUBLISH_BRANCHES="master next"
+  global:
+    secure: 3WoDI31Baqnj4Acw/Vswo0PyOZUEeiwr7mZoGo/fqzs9pQRgI/1wc2qkvpB3Lnm7IKXefTEi2bbwCwPPpBCaUTt+EbpWRI0R4mE65E8rsnPqejNjham/KRXwUammcdft/rDpc3TbRuHB7E5I1GuOgQTQpiugf3xF75lr3SKGaQmzTUBXtZlQdjXOqUSe+TCuTSmCgcpZyE2yeWu7Cq5K2HoXP5gW892o9Dw4CbnTmgc0W+5vvhYjD1zlTBEM8pdZfCn9BBU9xqaeRwkoKJciGBGFuaZvpOXHzZb4ihv7Fb/b+M+tqKi8M0/g7JVKp4zK08LmCwGytHapBGh7e/hNkHyEtZAFt4xvdhPca6PyCnGrrDNCmxZLvfVbrj9VETRhpZk63Nc39tRDbEJrYtb+FgDWW39cD1pQAy7t7AhLYyl+G4ZmRNbkdCYp0ionshKdPnNNSSDTJ2Jea/YEQLNZe3Lr7pHjaXhaPMc26fJcBQLwx6dDyyEBpYp7tk0cSgepBLLSr0PK1VUv0gD4S6b08dvtIWLtAKysKVQ8dH1RepZxRrjXuPj4znV40Y97J0w3OgpgaEngm2XCczrMdHOkhAy1Tf9gzCu4xkn8eNUr+LK44xK5gSSL1cXljhSEnwKkt23rR7k5Kai9ujCiu7Hc8Yy96QG6XeKsYOLSjpHfIFI=
+branches:
+  only:
+  - master
+  - next
+  - "/^greenkeeper/.*$/"
+  - "/^new-.*$/"
+  - "/^feat-.*$/"
+  - "/^add-.*$/"
+  - "/^change-.*$/"
+  - "/^breaking-.*$/"
+  - "/^deprecate-.*$/"
+  - "/^remove-.*$/"
+  - "/^fix-.*$/"
+  - "/^sec-.*$/"
+  - "/^security-.*$/"
+  - "/^perf-.*$/"
+  - "/^performance-.*$/"
+  - "/^test-.*$/"
+  - "/^tests-.*$/"
+  - "/^v?\\d+\\.\\d+\\.\\d+$/"
+  - "/^\\d+\\.\\d+\\.\\d+$/"
+cache:
+  directories:
+  - "$HOME/.npm"
+notifications:
+  email: false
+node_js:
+- node
