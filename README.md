@@ -19,7 +19,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/0.0.0 linux-x64 node-v9.5.0
+recce/0.0.1 linux-x64 node-v9.5.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
@@ -49,7 +49,7 @@ EXAMPLE
   hello world from ./src/hello.ts!
 ```
 
-_See code: [src/commands/hello.ts](https://github.com/escapace/recce/blob/v0.0.0/src/commands/hello.ts)_
+_See code: [src/commands/hello.ts](https://github.com/escapace/recce/blob/v0.0.1/src/commands/hello.ts)_
 
 ## recce help [COMMAND]
 
