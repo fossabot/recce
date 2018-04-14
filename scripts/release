@@ -11,8 +11,5 @@ main ()
     verbose true
     strict true
 
-    local updateReadme="$(jq -r '.scripts | ."update-readme" // empty' < 'package.json' )"
-    _ required "${updateReadme}"
-
-    # _ npmCommit "${1}" "$2"
+    _ npmCommit "${1}" "$2"
 }
