@@ -1,6 +1,6 @@
 {
   "name": "recce",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "escapace <opensource@escapace.com>",
   "license": "MPL-2.0",
   "bin": {
@@ -41,14 +41,20 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [".oclif.manifest.json", "/bin", "/lib"],
+  "files": [
+    ".oclif.manifest.json",
+    "/bin",
+    "/lib"
+  ],
   "homepage": "https://github.com/escapace/recce",
   "keywords": [],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": ["@oclif/plugin-help"]
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -61,8 +67,14 @@
       "prettier --write --trailing-comma none --no-semi --single-quote",
       "git add"
     ],
-    "**/*.json": ["prettier --write --parser json", "git add"],
-    "**/*.md": ["prettier --parser markdown --print-width 80", "git add"]
+    "**/*.json": [
+      "prettier --write --parser json",
+      "git add"
+    ],
+    "**/*.md": [
+      "prettier --parser markdown --print-width 80",
+      "git add"
+    ]
   },
   "husky": {
     "hooks": {
@@ -72,11 +84,22 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": ["src/**/*.ts"],
-    "extension": [".ts", ".tsx"],
-    "exclude": ["test/**/*.test.ts"],
-    "require": ["ts-node/register"],
-    "reporter": ["text"],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "test/**/*.test.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -89,8 +112,7 @@
     "test": "tsc --noEmit -p test && mocha --forbid-only \"test/**/*.test.ts\"",
     "prerelease": "oclif-dev manifest && oclif-dev readme && git add README.md",
     "test:coverage": "nyc npm run test",
-    "report-coverage":
-      "npm run test:coverage && nyc report --reporter=text-lcov > coverage.lcov && codecov ; rimraf coverage.lcov"
+    "report-coverage": "npm run test:coverage && nyc report --reporter=text-lcov > coverage.lcov && codecov ; rimraf coverage.lcov"
   },
   "types": "lib/index.d.ts"
 }
