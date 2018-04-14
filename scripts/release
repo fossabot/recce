@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# vim: set ft=sh:
+#
+# @description release script
+# @import github.com/escapace/stack-tools/release/npmCommit
+# @import lang/required
+
+main ()
+{
+    verbose true
+    strict true
+
+    local updateReadme="$(jq -r '.scripts | ."update-readme" // empty' < 'package.json' )"
+    _ required "${updateReadme}"
+
+    # _ npmCommit "${1}" "$2"
+}

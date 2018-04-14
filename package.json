@@ -22,7 +22,6 @@
     "@types/node": "^9.6.1",
     "chai": "^4.1.2",
     "codecov": "^3.0.0",
-    "globby": "^8.0.1",
     "husky": "^0.15.0-rc.13",
     "lint-staged": "^7.0.0",
     "mocha": "^5.0.5",
@@ -42,20 +41,14 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [
-    ".oclif.manifest.json",
-    "/bin",
-    "/lib"
-  ],
+  "files": [".oclif.manifest.json", "/bin", "/lib"],
   "homepage": "https://github.com/escapace/recce",
   "keywords": [],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
+    "plugins": ["@oclif/plugin-help"]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -68,14 +61,8 @@
       "prettier --write --trailing-comma none --no-semi --single-quote",
       "git add"
     ],
-    "**/*.json": [
-      "prettier --write --parser json",
-      "git add"
-    ],
-    "**/*.md": [
-      "prettier --parser markdown --print-width 80",
-      "git add"
-    ]
+    "**/*.json": ["prettier --write --parser json", "git add"],
+    "**/*.md": ["prettier --parser markdown --print-width 80", "git add"]
   },
   "husky": {
     "hooks": {
@@ -85,22 +72,11 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "test/**/*.test.ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text"
-    ],
+    "include": ["src/**/*.ts"],
+    "extension": [".ts", ".tsx"],
+    "exclude": ["test/**/*.test.ts"],
+    "require": ["ts-node/register"],
+    "reporter": ["text"],
     "sourceMap": true,
     "instrument": true
   },
@@ -108,12 +84,13 @@
     "build": "rimraf lib && tsc && oclif-dev manifest && oclif-dev readme",
     "test:travis": "npm run lint && npm run test",
     "lint": "tslint -p . -t stylish && tslint -p test -t stylish",
-    "postpack": "rm -f .oclif.manifest.json",
+    "postpack": "rimraf .oclif.manifest.json",
     "prepack": "npm run build",
-    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif-dev readme && git add README.md",
+    "test": "tsc --noEmit -p test && mocha --forbid-only \"test/**/*.test.ts\"",
+    "update-readme": "oclif-dev readme",
     "test:coverage": "nyc npm run test",
-    "report-coverage": "npm run test:coverage && nyc report --reporter=text-lcov > coverage.lcov && codecov ; rimraf coverage.lcov"
+    "report-coverage":
+      "npm run test:coverage && nyc report --reporter=text-lcov > coverage.lcov && codecov ; rimraf coverage.lcov"
   },
   "types": "lib/index.d.ts"
 }
