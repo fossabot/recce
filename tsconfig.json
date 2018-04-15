@@ -10,7 +10,7 @@
     "module": "commonjs",
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "outDir": "./lib",
     "paths": {

@@ -28,28 +28,34 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [recce hello [FILE]](#recce-hello-file)
+* [recce build [ENTRY]](#recce-build-entry)
 * [recce help [COMMAND]](#recce-help-command)
 
-## recce hello [FILE]
+## recce build [ENTRY]
 
 describe the command here
 
 ```
 USAGE
-  $ recce hello [FILE]
+  $ recce build [ENTRY]
+
+ARGUMENTS
+  ENTRY  [default: src/index.ts] library entrypoint
 
 OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
+  -h, --help                     show CLI help
+  -o, --output-path=output-path  [default: lib] the output path for compilation assets
+  -q, --quiet                    prevent output from being displayed in stdout
+  -t, --target=cjs|umd|esm       (required) build target
+  -v, --verbose                  show more details
+  --types                        generate corresponding .d.ts files
 
 EXAMPLE
   $ recce hello
   hello world from ./src/hello.ts!
 ```
 
-_See code: [src/commands/hello.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/hello.ts)_
+_See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/build.ts)_
 
 ## recce help [COMMAND]
 

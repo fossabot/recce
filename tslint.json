@@ -1,5 +1,9 @@
 {
-  "extends": [
-    "tslint-config-escapace"
-  ]
+  "extends": ["tslint-config-escapace"],
+  "rules": {
+    "max-func-body-length": false,
+    "no-useless-files": false,
+    "no-unsafe-any": false,
+    "completed-docs": false
+  }
 }
