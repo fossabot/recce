@@ -3,7 +3,7 @@ import { common } from './common'
 
 import { State } from '../types'
 
-// import { logger } from '@escapace/logger'
+import { logger } from '@escapace/logger'
 // import produce from 'immer'
 import webpack = require('webpack')
 import nodeExternals = require('webpack-node-externals')
@@ -26,7 +26,7 @@ import {
   tsconfig
 } from '../selectors'
 
-import { camelCase, isUndefined, mapValues, values } from 'lodash'
+import { camelCase, isNull, mapValues, values } from 'lodash'
 
 export interface WebpackProps {
   target: 'cjs' | 'umd'
@@ -169,8 +169,8 @@ const webpackTask = async (props: WebpackProps): Promise<void> => {
   /* tslint:enable no-any promise-must-complete */
 
   webpack(configuration, (err, stats) => {
-    if (!isUndefined(err) || stats.hasErrors() === true) {
-      reject()
+    if (!isNull(err) || stats.hasErrors() === true) {
+      reject(isNull(err) ? stats.toString() : err)
     }
 
     resolve()
@@ -194,12 +194,14 @@ export const build = async () => {
       enabled: () => value,
       task: async () =>
         webpackTask({
-          target: 'umd',
+          target: name as 'cjs' | 'umd',
           state,
-          filename: `${entryName(state)}.umd.js`
+          filename: `${entryName(state)}.${name}.js`
         })
     }
   })
 
-  return new Listr(values(tasks), { concurrent: true }).run()
+  return new Listr(values(tasks), { concurrent: true }).run().catch(err => {
+    logger.error(err)
+  })
 }
