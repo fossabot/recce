@@ -86,11 +86,11 @@ const webpackRules = (props: WebpackProps): webpack.Rule[] => {
       exclude: /node_modules/,
       use: [
         {
-          loader: 'babel-loader',
+          loader: resolveFrom(rootModules(state), 'babel-loader'),
           options: babelOptions()
         },
         {
-          loader: 'ts-loader',
+          loader: resolveFrom(rootModules(state), 'ts-loader'),
           options: tsOptions()
         }
       ]
