@@ -5,5 +5,6 @@
     "sourceMap": true,
     "types": ["mocha"]
   },
-  "include": ["./**/*", "../src/**/*"]
+  "include": ["./**/*", "../src/**/*"],
+  "exclude": ["./fixtures/**/*"]
 }

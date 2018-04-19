@@ -2,8 +2,11 @@
 
 import Command from '../base'
 import { flags } from '@oclif/command'
-import { includes } from 'lodash'
+import { compact, filter, isEmpty, isUndefined, some, uniq } from 'lodash'
 import { SET_BUILD_OPTIONS, SET_MODE } from '../actions'
+import { compilerOptions } from '../utilities/compilerOptions'
+
+import { BuildTargets } from '../types'
 
 export default class Build extends Command {
   public static description = 'describe the command here'
@@ -16,53 +19,72 @@ hello world from ./src/hello.ts!
 
   public static flags = {
     ...Command.flags,
+    entry: flags.string({
+      char: 'e',
+      description: 'library entrypoint',
+      multiple: true,
+      required: false
+    }),
     target: flags.string({
       char: 't',
-      description: 'build target',
+      description: 'the type for exposing the exports of the entry',
       multiple: true,
       options: ['cjs', 'umd', 'esm'],
-      required: true
+      required: false
     }),
-    'output-path': flags.string({
+    output: flags.string({
       char: 'o',
-      description: 'the output path for compilation assets',
+      description: 'directory to place build files into',
       default: 'lib',
       required: false
     }),
-    types: flags.boolean({
-      description: 'generate corresponding .d.ts files',
+    minimize: flags.boolean({
+      description: 'minimize javascript',
+      allowNo: true
+    }),
+    clean: flags.boolean({
+      description: 'remove ouput path before build',
       allowNo: true
     })
   }
 
-  public static args = [
-    {
-      name: 'entry',
-      description: 'library entrypoint',
-      default: 'src/index.ts'
-    }
-  ]
+  public static args = []
 
   public async run() {
     // tslint:disable-next-line no-shadowed-variable
-    const { args, flags } = this.parse(Build)
+    const { flags } = this.parse(Build)
+
+    const entries: string[] = isUndefined(flags.entry) ? [] : uniq(compact(flags.entry))
+    const hasEntry = !isEmpty(entries)
+    const defaultTargets: BuildTargets = hasEntry ? ['esm', 'cjs', 'umd'] : ['esm']
+    const targets: BuildTargets = uniq(
+      filter(
+        isUndefined(flags.target) ? defaultTargets : (flags.target as BuildTargets),
+        t => t === 'cjs' || t === 'esm' || t === 'umd'
+      )
+    )
+    const outputPath = isUndefined(flags.output) ? 'lib' : flags.output
+    const clean = isUndefined(flags.clean) ? true : flags.clean
+    const minimize = isUndefined(flags.minimize) ? true : flags.minimize
+
+    if (!hasEntry && some(targets, t => t !== 'esm')) {
+      throw new Error('Specify at least one entry for CommonJS and UMD builds')
+    }
 
     this.store.dispatch(SET_MODE('build'))
 
     this.store.dispatch(
       SET_BUILD_OPTIONS({
-        entry: args.entry as string,
-        targets: {
-          cjs: includes(flags.target, 'cjs'),
-          esm: includes(flags.target, 'esm'),
-          umd: includes(flags.target, 'umd')
-        },
-        types: flags.types,
-        outputPath: flags['output-path'] as string
+        clean,
+        compilerOptions: await compilerOptions(),
+        entries,
+        minimize,
+        outputPath,
+        targets
       })
     )
 
-    const { build } = await import('../entries/build')
+    const { build } = await import('../build')
 
     return build()
   }

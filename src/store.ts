@@ -1,8 +1,20 @@
 import produce from 'immer'
-import { Action, ActionCreator, AnyAction, Observe, State } from './types'
+import { MinifyOptions } from 'uglifyjs-webpack-plugin'
+import { Selector, createSelector, createStructuredSelector } from 'reselect'
 import { Store, createStore } from 'redux'
 import { context, level } from './selectors'
-import { logger } from '@escapace/logger'
+import { isEqual, isString } from 'lodash'
+
+import {
+  Action,
+  ActionCreator,
+  AnyAction,
+  CompilerOptions,
+  LodashOptions,
+  NodeOptions,
+  State
+} from './types'
+
 import {
   SET_BUILD_OPTIONS,
   SET_CONTEXT,
@@ -13,13 +25,16 @@ import {
   SET_PREFIX
 } from './actions'
 
-import { Node } from 'webpack'
+const DEFAULTS_TYPESCRIPT_COMPILER_OPTIONS: CompilerOptions = {
+  downlevelIteration: true,
+  importHelpers: true,
+  target: 'es6',
+  module: 'esnext',
+  moduleResolution: 'node',
+  sourceMap: true
+}
 
-import { isEqual, isString } from 'lodash'
-
-import { Selector, createSelector, createStructuredSelector } from 'reselect'
-
-const DEFAULTS_WEBPACK_NODE: Node = {
+const DEFAULTS_WEBPACK_NODE: NodeOptions = {
   console: false,
   global: false,
   process: false,
@@ -29,10 +44,65 @@ const DEFAULTS_WEBPACK_NODE: Node = {
   setImmediate: false
 }
 
+const DEFAULT_LODASH_OPTIONS: LodashOptions = {
+  cloning: true,
+  caching: true,
+  collections: true,
+  unicode: true,
+  memoizing: true,
+  coercions: true,
+  flattening: true,
+  paths: true
+}
+
+const DEFAULT_UGLIFY_OPTIONS: MinifyOptions = {
+  safari10: true,
+  compress: {
+    // turn off flags with small gains to speed up minification
+    arrows: false,
+    collapse_vars: false, // 0.3kb
+    comparisons: false,
+    computed_props: false,
+    hoist_funs: false,
+    hoist_props: false,
+    hoist_vars: false,
+    inline: false,
+    loops: false,
+    negate_iife: false,
+    properties: false,
+    reduce_funcs: false,
+    reduce_vars: false,
+    switches: false,
+    toplevel: false,
+    typeofs: false,
+
+    // a few flags with noticable gains/speed ratio
+    // numbers based on out of the box vendor bundle
+    booleans: true, // 0.7kb
+    if_return: true, // 0.4kb
+    sequences: true, // 0.7kb
+    unused: true, // 2.3kb
+
+    // required features to drop conditional branches
+    conditionals: true,
+    dead_code: true,
+    evaluate: true
+  },
+  mangle: true
+}
+
 const INITIAL_STATE: Partial<State> = {
   level: 'info',
   defaults: {
-    node: DEFAULTS_WEBPACK_NODE
+    lodash: {
+      id: ['lodash-es', 'lodash', 'lodash-fp'],
+      options: DEFAULT_LODASH_OPTIONS
+    },
+    uglify: DEFAULT_UGLIFY_OPTIONS,
+    node: DEFAULTS_WEBPACK_NODE,
+    typescript: {
+      compilerOptions: DEFAULTS_TYPESCRIPT_COMPILER_OPTIONS
+    }
   }
 }
 
@@ -40,7 +110,7 @@ export function isType<P>(action: AnyAction, actionCreator: ActionCreator<P>): a
   return action.type === actionCreator.type
 }
 
-export const store = createStore<State>(
+export const store: Store<State> = createStore<State>(
   (state, action: AnyAction) => {
     if (isType(action, SET_OCLIF_CONFIG)) {
       return produce(state, (draft: State) => {
@@ -76,30 +146,3 @@ export const store = createStore<State>(
   },
   INITIAL_STATE as State
 )
-
-export const observeStore = <S>(_store: Store<S>): Observe<S> => (selector, cb) => {
-  let currentValue = selector(_store.getState())
-
-  const watch = () => {
-    const newValue = selector(_store.getState())
-    if (!isEqual(currentValue, newValue)) {
-      const oldValue = currentValue
-      currentValue = newValue
-      cb(newValue, oldValue, _store)
-    }
-  }
-
-  return _store.subscribe(watch)
-}
-
-export const observe = observeStore<State>(store)
-
-observe(level, value => {
-  logger.level = value
-})
-
-observe(context, value => {
-  if (isString(value)) {
-    process.chdir(value)
-  }
-})

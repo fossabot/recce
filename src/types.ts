@@ -1,10 +1,16 @@
 import { AnyAction, Store, Unsubscribe } from 'redux'
-// import { Package } from 'normalize-package-data'
 import { IConfig as OclifConfig } from '@oclif/config'
 import { Selector } from 'reselect'
 import { LoggerLevel } from '@escapace/logger'
 import { Package } from 'normalize-package-data'
-import { Node } from 'webpack'
+import { Node as NodeOptions } from 'webpack'
+import { Options as LodashOptions } from 'lodash-webpack-plugin'
+import { MinifyOptions } from 'uglifyjs-webpack-plugin'
+
+// tslint:disable-next-line no-any
+export interface CompilerOptions {
+  [key: string]: any
+}
 
 export interface Action<P> extends AnyAction {
   type: string
@@ -18,17 +24,16 @@ export interface ActionCreator<P> {
 
 export { AnyAction } from 'redux'
 
-export interface BuildTargets {
-  cjs: boolean
-  esm: boolean
-  umd: boolean
-}
+export type BuildTarget = 'cjs' | 'umd' | 'esm'
+export type BuildTargets = BuildTarget[]
 
 export interface BuildOptions {
-  entry: string
+  compilerOptions: CompilerOptions
+  entries: string[]
   targets: BuildTargets
-  types: boolean
   outputPath: string
+  minimize: boolean
+  clean: boolean
 }
 
 export type Mode = 'build' | 'test'
@@ -47,7 +52,15 @@ export interface State {
   oclifConfig: OclifConfig
   build: BuildOptions
   defaults: {
-    node: Node
+    node: NodeOptions
+    uglify: MinifyOptions
+    lodash: {
+      id: string[]
+      options: LodashOptions
+    }
+    typescript: {
+      compilerOptions: CompilerOptions
+    }
   }
 }
 
@@ -67,3 +80,6 @@ export interface PackageJson extends Package {
 }
 
 export { LoggerLevel } from '@escapace/logger'
+export { MinifyOptions } from 'uglifyjs-webpack-plugin'
+export { Node as NodeOptions } from 'webpack'
+export { Options as LodashOptions } from 'lodash-webpack-plugin'

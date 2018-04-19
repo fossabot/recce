@@ -1,13 +1,6 @@
 recce
 =====
 
-[![Version](https://img.shields.io/npm/v/recce.svg)](https://npmjs.org/package/recce)
-[![CircleCI](https://circleci.com/gh/escapace/recce/tree/master.svg?style=shield)](https://circleci.com/gh/escapace/recce/tree/master)
-[![Appveyor CI](https://ci.appveyor.com/api/projects/status/github/escapace/recce?branch=master&svg=true)](https://ci.appveyor.com/project/escapace/recce/branch/master)
-[![Codecov](https://codecov.io/gh/escapace/recce/branch/master/graph/badge.svg)](https://codecov.io/gh/escapace/recce)
-[![License](https://img.shields.io/npm/l/recce.svg)](https://github.com/escapace/recce/blob/master/package.json)
-[![Build Status](https://travis-ci.org/escapace/recce.svg?branch=master)](https://travis-ci.org/escapace/recce)
-
 <!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
@@ -28,27 +21,27 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [recce build [ENTRY]](#recce-build-entry)
+* [recce build](#recce-build)
 * [recce help [COMMAND]](#recce-help-command)
 
-## recce build [ENTRY]
+## recce build
 
 describe the command here
 
 ```
 USAGE
-  $ recce build [ENTRY]
-
-ARGUMENTS
-  ENTRY  [default: src/index.ts] library entrypoint
+  $ recce build
 
 OPTIONS
-  -h, --help                     show CLI help
-  -o, --output-path=output-path  [default: lib] the output path for compilation assets
-  -q, --quiet                    prevent output from being displayed in stdout
-  -t, --target=cjs|umd|esm       (required) build target
-  -v, --verbose                  show more details
-  --types                        generate corresponding .d.ts files
+  -c, --context=context     [default: /home/l5x/desktop/focus/recce] the root directory for resolving entry point
+  -e, --entry=entry         library entrypoint
+  -h, --help                show CLI help
+  -o, --output=output       [default: lib] directory to place build files into
+  -q, --quiet               prevent output from being displayed in stdout
+  -t, --target=cjs|umd|esm  the type for exposing the exports of the entry
+  -v, --verbose             show more details
+  --clean                   remove ouput path before build
+  --minimize                minimize javascript
 
 EXAMPLE
   $ recce hello
