@@ -5,6 +5,9 @@ require('@oclif/command')
   .run()
   .catch(err => {
     if (!err) err = new Error('no error?')
-    if (err.message) logger.error(err.message)
     process.exitCode = err.oclif && err.oclif.exit !== undefined ? err.oclif.exit : 1
+
+    if (process.exitCode !== 0 && err.message) {
+      logger.error(err.message)
+    }
   })
