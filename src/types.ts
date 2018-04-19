@@ -7,8 +7,8 @@ import { Node as NodeOptions } from 'webpack'
 import { Options as LodashOptions } from 'lodash-webpack-plugin'
 import { MinifyOptions } from 'uglifyjs-webpack-plugin'
 
-// tslint:disable-next-line no-any
 export interface CompilerOptions {
+  // tslint:disable-next-line no-any
   [key: string]: any
 }
 
