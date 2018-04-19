@@ -12,7 +12,6 @@
   ],
   "semanticCommits": true,
   "timezone": "America/New_York",
-  "schedule": ["before 2am on Monday"],
   "rebaseStalePrs": true,
   "prCreation": "not-pending",
   "automerge": "minor"
