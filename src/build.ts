@@ -30,17 +30,16 @@ import {
   context,
   contextModules,
   declaration,
-  // entryName,
   lodashId,
   lodashOptions,
   nodeOptions,
+  nodeTarget,
   outputPathCjs,
   outputPathEsm,
   outputPathTypes,
   outputPathUmd,
   packageName,
   rootModules,
-  // relativeEntry,
   targets,
   tsconfig,
   uglifyOptions,
@@ -114,8 +113,7 @@ const babelOptions = (props: BuildProps) => {
           targets:
             target === 'cjs'
               ? {
-                  // TODO: more specific version
-                  node: 'current'
+                  node: nodeTarget(state)
                 }
               : undefined
         }

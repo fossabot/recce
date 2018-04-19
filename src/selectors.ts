@@ -1,6 +1,8 @@
 import { createSelector } from 'reselect'
 import { join, parse, relative, resolve } from 'path'
-import { assign, filter, fromPairs, map, some } from 'lodash'
+import { assign, filter, fromPairs, get, map, some, isString } from 'lodash'
+import semver = require('semver')
+
 import {
   BuildTargets,
   CompilerOptions,
@@ -58,6 +60,24 @@ export const condLodash = createSelector(combinedDependencies, _lodashId, (dep, 
 export const lodashId = createSelector(combinedDependencies, _lodashId, (dep, lmn): string[] =>
   filter(lmn, l => dep[l])
 )
+
+export const nodeTarget = createSelector(packageJson, (pjson): string => {
+  const node: string | undefined = get(pjson, 'engines.node')
+
+  if (isString(node)) {
+    if (semver.valid(node) !== null) {
+      return node
+    }
+
+    const coerced = semver.coerce(node)
+
+    if (semver.validRange(node) !== null && coerced !== null) {
+      return coerced.version
+    }
+  }
+
+  return `${semver.major(process.versions.node)}.0.0`
+})
 
 // export const entryName = createSelector(entries, n => parse(n).name)
 // export const relativeEntry = createSelector(entries, context, (e, c) => relative(c, resolve(c, e)))
