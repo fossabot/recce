@@ -3,7 +3,7 @@ import { Command, flags } from '@oclif/command'
 import { LoggerLevel, LoggerMethod, logger } from '@escapace/logger'
 import { State } from './types'
 import { Store } from 'redux'
-import { bind, get } from 'lodash'
+import { bind, get, isUndefined } from 'lodash'
 import { dirname, join } from 'path'
 import { packageJson } from './utilities/packageJson'
 import { store } from './store'
@@ -22,7 +22,6 @@ export default abstract class extends Command {
     context: flags.string({
       char: 'c',
       description: 'the root directory for resolving entry point',
-      default: process.cwd(),
       required: false
     }),
     verbose: flags.boolean({
@@ -62,7 +61,9 @@ export default abstract class extends Command {
 
     const state = store.getState()
 
-    const { content, path } = await packageJson(flags.context)
+    const { content, path } = await packageJson(
+      isUndefined(flags.context) ? process.cwd : flags.context
+    )
 
     if (state.oclifConfig.root === dirname(path)) {
       throw new Error('Change the working directory')

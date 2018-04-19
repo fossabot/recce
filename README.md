@@ -33,7 +33,7 @@ USAGE
   $ recce build
 
 OPTIONS
-  -c, --context=context     [default: /home/l5x/desktop/focus/recce] the root directory for resolving entry point
+  -c, --context=context     the root directory for resolving entry point
   -e, --entry=entry         library entrypoint
   -h, --help                show CLI help
   -o, --output=output       [default: lib] directory to place build files into
