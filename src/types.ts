@@ -1,7 +1,5 @@
-import { AnyAction, Store, Unsubscribe } from 'redux'
+import { AnyAction } from 'redux'
 import { IConfig as OclifConfig } from '@oclif/config'
-import { Selector } from 'reselect'
-import { LoggerLevel } from '@escapace/logger'
 import { Package } from 'normalize-package-data'
 import { Node as NodeOptions } from 'webpack'
 import { Options as LodashOptions } from 'lodash-webpack-plugin'
@@ -45,7 +43,6 @@ export interface Prefix {
 
 export interface State {
   prefix: Prefix
-  level: LoggerLevel
   mode: Mode
   context: string
   pjson: PackageJson
@@ -64,22 +61,15 @@ export interface State {
   }
 }
 
-export interface Message {
-  // tslint:disable-next-line no-any
-  args: any[]
-  level: LoggerLevel
-}
-
-export type Observe<S> = <P>(
-  selector: Selector<S, P>,
-  cb: (state: P, oldState: P, store: Store<S>) => void
-) => Unsubscribe
+// export type Observe<S> = <P>(
+//   selector: Selector<S, P>,
+//   cb: (state: P, oldState: P, store: Store<S>) => void
+// ) => Unsubscribe
 
 export interface PackageJson extends Package {
   browserlist: string[]
 }
 
-export { LoggerLevel } from '@escapace/logger'
 export { MinifyOptions } from 'uglifyjs-webpack-plugin'
 export { Node as NodeOptions } from 'webpack'
 export { Options as LodashOptions } from 'lodash-webpack-plugin'

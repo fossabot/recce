@@ -33,15 +33,14 @@ USAGE
   $ recce build
 
 OPTIONS
-  -c, --context=context     the root directory for resolving entry point
-  -e, --entry=entry         library entrypoint
+  -c, --context=context     project directory
+  -e, --entry=entry         project entry point
   -h, --help                show CLI help
-  -o, --output=output       [default: lib] directory to place build files into
-  -q, --quiet               prevent output from being displayed in stdout
-  -t, --target=cjs|umd|esm  the type for exposing the exports of the entry
-  -v, --verbose             show more details
-  --clean                   remove ouput path before build
-  --minimize                minimize javascript
+  -o, --output=output       [default: lib] output directory path
+  -q, --quiet               don't output anything
+  -t, --target=cjs|umd|esm  types of module systems
+  --clean                   [default: true] clean output directory
+  --minimize                [default: true] minimize javascript
 
 EXAMPLE
   $ recce hello

@@ -311,6 +311,7 @@ const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configu
       rules: webpackRules(props)
     },
     optimization: {
+      nodeEnv: false,
       minimize: false
     },
     plugins: compact([
@@ -425,50 +426,55 @@ const buildTask = async (props: { target: BuildTarget }): Promise<BuildResult> =
 export const build = async () => {
   const results: BuildResult[] = []
 
-  return new Listr([
-    {
-      title: 'Check configuration',
-      task: checkEntries
-    },
-    {
-      title: 'Clean output directory',
-      task: clean,
-      skip: () => {
-        const state = store.getState()
+  return new Listr(
+    [
+      {
+        title: 'Check configuration',
+        task: checkEntries
+      },
+      {
+        title: 'Clean output directory',
+        task: clean,
+        skip: () => {
+          const state = store.getState()
 
-        return !condClean(state)
+          return !condClean(state)
+        }
+      },
+      {
+        title: 'Build modules',
+        task: () => {
+          const state = store.getState()
+
+          return new Listr(
+            [
+              ...map<BuildTarget, ListrTask>(targets(state), target => {
+                return {
+                  title: `Build ${buildTitle({ target })}`,
+                  // tslint:disable-next-line promise-function-async
+                  task: () =>
+                    buildTask({ target }).then(result => {
+                      results.push(result)
+
+                      if (result.hasErrors) {
+                        throw new Error()
+                      }
+                    })
+                }
+              })
+            ],
+            {
+              concurrent: true,
+              exitOnError: false
+            }
+          )
+        }
       }
-    },
+    ],
     {
-      title: 'Build modules',
-      task: () => {
-        const state = store.getState()
-
-        return new Listr(
-          [
-            ...map<BuildTarget, ListrTask>(targets(state), target => {
-              return {
-                title: `Build ${buildTitle({ target })}`,
-                // tslint:disable-next-line promise-function-async
-                task: () =>
-                  buildTask({ target }).then(result => {
-                    results.push(result)
-
-                    if (result.hasErrors) {
-                      throw new Error()
-                    }
-                  })
-              }
-            })
-          ],
-          {
-            concurrent: true,
-            exitOnError: false
-          }
-        )
-      }
+      renderer: logger.level === 'silent' ? 'silent' : 'default'
     }
-  ])
+  )
     .run()
     .catch(error => {
       if (error.message !== 'Something went wrong') {

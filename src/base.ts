@@ -8,31 +8,25 @@ import { dirname, join } from 'path'
 import { packageJson } from './utilities/packageJson'
 import { store } from './store'
 
-import {
-  SET_CONTEXT,
-  SET_LOG_LEVEL,
-  SET_OCLIF_CONFIG,
-  SET_PACKAGE_JSON,
-  SET_PREFIX
-} from './actions'
+import { SET_CONTEXT, SET_OCLIF_CONFIG, SET_PACKAGE_JSON, SET_PREFIX } from './actions'
 
 export default abstract class extends Command {
   public static flags = {
     help: flags.help({ char: 'h' }),
     context: flags.string({
       char: 'c',
-      description: 'the root directory for resolving entry point',
+      description: 'project directory',
       required: false
     }),
-    verbose: flags.boolean({
-      char: 'v',
-      description: 'show more details',
-      allowNo: false
-    }),
+    // verbose: flags.boolean({
+    //   char: 'v',
+    //   description: 'show more details',
+    //   allowNo: false
+    // }),
     quiet: flags.boolean({
       char: 'q',
       allowNo: false,
-      description: 'prevent output from being displayed in stdout'
+      description: "don't output anything"
     })
   }
 
@@ -50,19 +44,18 @@ export default abstract class extends Command {
     const { flags } = this.parse(this.constructor as any)
 
     if (flags.quiet) {
-      store.dispatch(SET_LOG_LEVEL('silent'))
       logger.level = 'silent'
-    } else if (flags.verbose) {
-      store.dispatch(SET_LOG_LEVEL('verbose'))
-      logger.level = 'verbose'
     }
+    // else if (flags.verbose) {
+    //   logger.level = 'verbose'
+    // }
 
     store.dispatch(SET_OCLIF_CONFIG(this.config))
 
     const state = store.getState()
 
     const { content, path } = await packageJson(
-      isUndefined(flags.context) ? process.cwd : flags.context
+      isUndefined(flags.context) ? process.cwd() : flags.context
     )
 
     if (state.oclifConfig.root === dirname(path)) {

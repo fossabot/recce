@@ -20,7 +20,6 @@ export const context = (state: State): string => state.context
 export const contextModules = (state: State): string => state.prefix.context
 export const compilerOptions = (state: State): CompilerOptions =>
   state.defaults.typescript.compilerOptions
-export const level = (state: State) => state.level
 export const lodashOptions = (state: State): LodashOptions => state.defaults.lodash.options
 export const nodeOptions = (state: State): NodeOptions => state.defaults.node
 export const packageJson = (state: State): PackageJson => state.pjson

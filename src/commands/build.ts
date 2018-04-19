@@ -21,29 +21,29 @@ hello world from ./src/hello.ts!
     ...Command.flags,
     entry: flags.string({
       char: 'e',
-      description: 'library entrypoint',
+      description: 'project entry point',
       multiple: true,
       required: false
     }),
     target: flags.string({
       char: 't',
-      description: 'the type for exposing the exports of the entry',
+      description: 'types of module systems',
       multiple: true,
       options: ['cjs', 'umd', 'esm'],
       required: false
     }),
     output: flags.string({
       char: 'o',
-      description: 'directory to place build files into',
+      description: 'output directory path',
       default: 'lib',
       required: false
     }),
     minimize: flags.boolean({
-      description: 'minimize javascript',
+      description: '[default: true] minimize javascript',
       allowNo: true
     }),
     clean: flags.boolean({
-      description: 'remove ouput path before build',
+      description: '[default: true] clean output directory',
       allowNo: true
     })
   }
