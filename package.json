@@ -13,7 +13,7 @@
     "@babel/preset-env": "7.0.0-beta.44",
     "@escapace/logger": "0.0.5",
     "@oclif/command": "1.4.13",
-    "@oclif/config": "1.6.3",
+    "@oclif/config": "1.6.4",
     "@oclif/plugin-help": "1.2.4",
     "babel-loader": "8.0.0-beta.2",
     "babel-plugin-lodash": "3.3.2",
