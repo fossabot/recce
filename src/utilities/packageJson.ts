@@ -3,6 +3,7 @@ import { PackageJson } from '../types'
 import { isNull } from 'lodash'
 import { normalizePackageJson } from './normalizePackageJson'
 import { readFileAsync } from './readFileAsync'
+import { isDirectory } from './isDirectory'
 
 export const packageJson = async (
   cwd: string
@@ -10,6 +11,12 @@ export const packageJson = async (
   path: string
   content: PackageJson
 }> => {
+  const { test } = await isDirectory(cwd)
+
+  if (!test) {
+    throw new Error(`${cwd}: No such directory`)
+  }
+
   const path = await pkgUp(cwd)
 
   if (!isNull(path)) {
@@ -19,5 +26,5 @@ export const packageJson = async (
     }
   }
 
-  throw new Error("No such file 'package.json'.")
+  throw new Error(`package.json: No such file`)
 }

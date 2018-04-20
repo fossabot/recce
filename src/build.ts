@@ -470,7 +470,19 @@ export const build = async () => {
       }
     ],
     {
-      renderer: logger.level === 'silent' ? 'silent' : 'default'
+      renderer: ((): 'verbose' | 'silent' | 'default' => {
+        switch (logger.level) {
+          case 'silent': {
+            return 'silent'
+          }
+          case 'verbose': {
+            return 'verbose'
+          }
+          default: {
+            return 'default'
+          }
+        }
+      })()
     }
   )
     .run()
@@ -493,6 +505,10 @@ export const build = async () => {
         )
       )
 
-      process.exit(isEmpty(fail) ? 0 : 1)
+      if (!isEmpty(fail)) {
+        const n = fail.length === 1 ? 'an error' : `${fail.length} errors`
+
+        throw new Error(`Recce encountered ${n} and could not finish the build.`)
+      }
     })
 }

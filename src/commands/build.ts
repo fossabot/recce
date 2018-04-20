@@ -9,12 +9,13 @@ import { compilerOptions } from '../utilities/compilerOptions'
 import { BuildTargets } from '../types'
 
 export default class Build extends Command {
-  public static description = 'describe the command here'
+  public static description = 'TypeScript library build tool'
 
   public static examples = [
-    `$ recce hello
-hello world from ./src/hello.ts!
-`
+    '$ recce build -c [directory] -t esm -e src/hello.ts',
+    '$ recce build -c [directory] -t cjs -e src/hello.ts -e src/world.ts',
+    '$ recce build -t cjs -t umd -t esm -e src/hello.ts -e src/world.ts',
+    '$ recce build --no-clean -no-minimize -t umd -e src/hello.ts'
   ]
 
   public static flags = {

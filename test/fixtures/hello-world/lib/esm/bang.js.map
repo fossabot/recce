@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/bang.ts"],"names":["bang"],"mappings":"AAAA,OAAO,IAAMA,OAAO,GAAb","file":"bang.js","sourcesContent":["export const bang = '!'\n"]}

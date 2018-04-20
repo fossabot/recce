@@ -1,7 +1,11 @@
-recce
-=====
+# Recce
+
+[![build status](https://travis-ci.org/escapace/recce.svg?branch=master)](https://travis-ci.org/escapace/recce)
+[![code coverage](https://codecov.io/gh/escapace/recce/branch/master/graph/badge.svg)](https://codecov.io/gh/escapace/recce)
+[![license](https://img.shields.io/badge/license-Mozilla%20Public%20License%20Version%202.0-blue.svg)]()
 
 <!-- toc -->
+* [Recce](#recce)
 * [Usage](#usage)
 * [Commands](#commands)
 <!-- tocstop -->
@@ -21,12 +25,12 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [recce build](#recce-build)
-* [recce help [COMMAND]](#recce-help-command)
+* [`recce build`](#recce-build)
+* [`recce help [COMMAND]`](#recce-help-command)
 
-## recce build
+## `recce build`
 
-describe the command here
+TypeScript library build tool
 
 ```
 USAGE
@@ -42,14 +46,19 @@ OPTIONS
   --clean                   [default: true] clean output directory
   --minimize                [default: true] minimize javascript
 
-EXAMPLE
-  $ recce hello
-  hello world from ./src/hello.ts!
+EXAMPLES
+  $ recce build -c [directory] -t esm -e src/hello.ts
+
+  $ recce build -c [directory] -t cjs -e src/hello.ts -e src/world.ts
+
+  $ recce build -t cjs -t umd -t esm -e src/hello.ts -e src/world.ts
+
+  $ recce build --no-clean -no-minimize -t umd -e src/hello.ts
 ```
 
 _See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/build.ts)_
 
-## recce help [COMMAND]
+## `recce help [COMMAND]`
 
 display help for recce
 

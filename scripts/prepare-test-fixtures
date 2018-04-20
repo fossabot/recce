@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# vim: set ft=sh:
+#
+# @description install fixture dependencies
+# @import lang/required
+# @import console/info
+# @import path/relativePath
+
+main ()
+{
+    verbose true
+    strict true
+
+    for directory in "${MANAGE_REPOSITORY}/test/fixtures"/*
+    do
+        if [ -d "${directory}" ] && [ -f "${directory}/package.json" ]
+        then
+            cd "${directory}"
+            _ info "Installing dependencies for '$(_ relativePath  "${directory}" "${MANAGE_REPOSITORY}")'"
+            npm install
+        fi
+    done
+}

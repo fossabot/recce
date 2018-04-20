@@ -19,32 +19,34 @@ export function isType<P>(action: AnyAction, actionCreator: ActionCreator<P>): a
   return action.type === actionCreator.type
 }
 
-export const store: Store<State> = createStore<State>(
-  (state, action: AnyAction) => {
-    if (isType(action, SET_OCLIF_CONFIG)) {
-      return produce(state, (draft: State) => {
-        draft.oclifConfig = action.payload
-      })
-    } else if (isType(action, SET_CONTEXT)) {
-      return produce(state, (draft: State) => {
-        draft.context = action.payload
-      })
-    } else if (isType(action, SET_PACKAGE_JSON)) {
-      return produce(state, (draft: State) => {
-        draft.pjson = action.payload
-      })
-    } else if (isType(action, SET_MODE)) {
-      return produce(state, (draft: State) => {
-        draft.mode = action.payload
-      })
-    } else if (isType(action, SET_BUILD_OPTIONS)) {
-      return produce(state, (draft: State) => {
-        draft.build = action.payload
-      })
-    } else if (isType(action, SET_PREFIX)) {
-      return produce(state, (draft: State) => {
-        draft.prefix = action.payload
-      })
+export const store: Store<State> = createStore(
+  (state: State | undefined, action: AnyAction) => {
+    if (state !== undefined) {
+      if (isType(action, SET_OCLIF_CONFIG)) {
+        return produce(state, (draft: State) => {
+          draft.oclifConfig = action.payload
+        })
+      } else if (isType(action, SET_CONTEXT)) {
+        return produce(state, (draft: State) => {
+          draft.context = action.payload
+        })
+      } else if (isType(action, SET_PACKAGE_JSON)) {
+        return produce(state, (draft: State) => {
+          draft.pjson = action.payload
+        })
+      } else if (isType(action, SET_MODE)) {
+        return produce(state, (draft: State) => {
+          draft.mode = action.payload
+        })
+      } else if (isType(action, SET_BUILD_OPTIONS)) {
+        return produce(state, (draft: State) => {
+          draft.build = action.payload
+        })
+      } else if (isType(action, SET_PREFIX)) {
+        return produce(state, (draft: State) => {
+          draft.prefix = action.payload
+        })
+      }
     }
 
     return state

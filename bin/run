@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+
 const { logger } = require('@escapace/logger')
 
-require('@oclif/command')
-  .run()
+require('@oclif/command').run()
+// .catch(require('@oclif/errors/handle'))
   .catch(err => {
     if (!err) err = new Error('no error?')
     process.exitCode = err.oclif && err.oclif.exit !== undefined ? err.oclif.exit : 1

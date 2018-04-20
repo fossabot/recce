@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { join, parse, relative, resolve } from 'path'
-import { assign, filter, fromPairs, get, map, some, isString } from 'lodash'
+import { assign, filter, fromPairs, get, isString, map, some } from 'lodash'
 import semver = require('semver')
 
 import {
@@ -71,6 +71,7 @@ export const nodeTarget = createSelector(packageJson, (pjson): string => {
 
     const coerced = semver.coerce(node)
 
+    // tslint:disable-next-line strict-type-predicates
     if (semver.validRange(node) !== null && coerced !== null) {
       return coerced.version
     }

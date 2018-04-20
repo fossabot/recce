@@ -18,11 +18,11 @@ export default abstract class extends Command {
       description: 'project directory',
       required: false
     }),
-    // verbose: flags.boolean({
-    //   char: 'v',
-    //   description: 'show more details',
-    //   allowNo: false
-    // }),
+    verbose: flags.boolean({
+      hidden: true,
+      description: 'show more details',
+      allowNo: false
+    }),
     quiet: flags.boolean({
       char: 'q',
       allowNo: false,
@@ -45,10 +45,9 @@ export default abstract class extends Command {
 
     if (flags.quiet) {
       logger.level = 'silent'
+    } else if (flags.verbose || process.env.TEST_OUTPUT === '1') {
+      logger.level = 'verbose'
     }
-    // else if (flags.verbose) {
-    //   logger.level = 'verbose'
-    // }
 
     store.dispatch(SET_OCLIF_CONFIG(this.config))
 
