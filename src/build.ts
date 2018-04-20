@@ -19,6 +19,7 @@ import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
 import { EOL } from 'os'
 import chalk from 'chalk'
+import { FilterWebpackPlugin } from './filterWebpackPlugin'
 
 import { normalize, relative } from 'path'
 
@@ -321,7 +322,10 @@ const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configu
             cache: true,
             parallel: true
           })
-        : undefined
+        : undefined,
+      new FilterWebpackPlugin({
+        patterns: ['**/*.d.ts']
+      })
       // new webpack.BannerPlugin(banner)
     ]),
     resolve: {
@@ -499,16 +503,16 @@ export const build = async () => {
         logger.error(
           'Failed to build',
           buildTitle({ target: result.target }),
-          '\n',
-          join(result.errors, '\n'),
-          '\n'
+          EOL,
+          join(result.errors, EOL),
+          EOL
         )
       )
 
       if (!isEmpty(fail)) {
         const n = fail.length === 1 ? 'an error' : `${fail.length} errors`
 
-        throw new Error(`Recce encountered ${n} and could not finish the build.`)
+        throw new Error(`Recce encountered ${n} and could not finish the build`)
       }
     })
 }
