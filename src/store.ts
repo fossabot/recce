@@ -1,12 +1,14 @@
 import produce from 'immer'
 import { Selector, createSelector, createStructuredSelector } from 'reselect'
 import { Store, createStore } from 'redux'
-import { isEqual, isString } from 'lodash'
+import { isUndefined, union } from 'lodash'
 import { INITIAL_STATE } from './constants'
 
 import { Action, ActionCreator, AnyAction, State } from './types'
 
 import {
+  ADD_FILE_SOURCE,
+  ADD_TYPESCRIPT_ERROR,
   SET_BUILD_OPTIONS,
   SET_CONTEXT,
   SET_MODE,
@@ -45,6 +47,23 @@ export const store: Store<State> = createStore(
       } else if (isType(action, SET_PREFIX)) {
         return produce(state, (draft: State) => {
           draft.prefix = action.payload
+        })
+      } else if (isType(action, ADD_TYPESCRIPT_ERROR)) {
+        return produce(state, (draft: State) => {
+          const errors = draft.build.errors
+
+          if (isUndefined(errors[action.payload.hash])) {
+            errors[action.payload.hash] = action.payload
+          } else {
+            errors[action.payload.hash].targets = union(
+              errors[action.payload.hash].targets,
+              action.payload.targets
+            )
+          }
+        })
+      } else if (isType(action, ADD_FILE_SOURCE)) {
+        return produce(state, (draft: State) => {
+          draft.build.files[action.payload.file] = action.payload.source
         })
       }
     }

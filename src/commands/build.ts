@@ -76,6 +76,8 @@ export default class Build extends Command {
 
     this.store.dispatch(
       SET_BUILD_OPTIONS({
+        files: {},
+        errors: {},
         clean,
         compilerOptions: await compilerOptions(),
         entries,

@@ -5,6 +5,22 @@ import { Node as NodeOptions } from 'webpack'
 import { Options as LodashOptions } from 'lodash-webpack-plugin'
 import { MinifyOptions } from 'uglifyjs-webpack-plugin'
 
+export interface TypescriptError {
+  code: number
+  content: string
+  severity: 'error' | 'warning'
+  file: string
+  line: number
+  character: number
+  context: string
+}
+
+export interface TypescriptErrorRecord {
+  targets: BuildTarget[]
+  error: TypescriptError
+  hash: string
+}
+
 export interface CompilerOptions {
   // tslint:disable-next-line no-any
   [key: string]: any
@@ -25,7 +41,14 @@ export { AnyAction } from 'redux'
 export type BuildTarget = 'cjs' | 'umd' | 'esm'
 export type BuildTargets = BuildTarget[]
 
+export interface FileSource {
+  file: string
+  source: string
+}
+
 export interface BuildOptions {
+  errors: { [key: string]: TypescriptErrorRecord }
+  files: { [key: string]: string }
   compilerOptions: CompilerOptions
   entries: string[]
   targets: BuildTargets

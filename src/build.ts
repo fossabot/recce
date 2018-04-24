@@ -1,6 +1,6 @@
 // import produce from 'immer'
+import { BuildTarget, FileSource, State, TypescriptError } from './types'
 import Listr = require('listr')
-import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 import babel = require('gulp-babel')
 import gulp = require('gulp')
@@ -11,15 +11,21 @@ import resolveFrom = require('resolve-from')
 import sourcemaps = require('gulp-sourcemaps')
 import typescript = require('gulp-typescript')
 import webpack = require('webpack')
-import { BuildTarget, State } from './types'
+import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 import { ListrTask } from 'listr'
 import { logger } from '@escapace/logger'
 import { store } from './store'
 import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
+import { readFileAsync } from './utilities/readFileAsync'
 import { EOL } from 'os'
 import chalk from 'chalk'
 import { FilterWebpackPlugin } from './filterWebpackPlugin'
+import ObjectHash = require('node-object-hash')
+import { ADD_FILE_SOURCE, ADD_TYPESCRIPT_ERROR } from './actions'
+import { codeFrameColumns } from '@babel/code-frame'
+
+const objectHash = ObjectHash()
 
 import { normalize, relative } from 'path'
 
@@ -31,6 +37,8 @@ import {
   context,
   contextModules,
   declaration,
+  errors,
+  files,
   lodashId,
   lodashOptions,
   nodeOptions,
@@ -53,12 +61,16 @@ import {
   concat,
   filter,
   forEach,
+  forOwn,
   includes,
   isEmpty,
   isNull,
-  join,
+  isUndefined,
+  keys,
   map,
-  omit
+  omit,
+  upperCase,
+  values
 } from 'lodash'
 
 export interface BuildResult {
@@ -70,16 +82,6 @@ export interface BuildResult {
 
 export interface BuildProps {
   target: BuildTarget
-}
-
-export interface ErrorInfo {
-  code: number
-  content: string
-  severity: 'error' | 'warning'
-  file: string
-  line: number
-  character: number
-  context: string
 }
 
 const babelOptions = (props: BuildProps) => {
@@ -126,11 +128,24 @@ const babelOptions = (props: BuildProps) => {
 const gulpBabelOptions = () => omit(babelOptions({ target: 'esm' }), ['cacheDirectory'])
 const webpackBabelOptions = babelOptions
 
-const typescriptOptions = () => {
+const errorDispatch = (props: { target: BuildTarget }) => (error: TypescriptError): string => {
+  const hash = objectHash.hash(error)
+  store.dispatch(
+    ADD_TYPESCRIPT_ERROR({
+      targets: [props.target],
+      hash,
+      error
+    })
+  )
+
+  return hash
+}
+
+const typescriptOptions = (props: { target: BuildTarget }) => {
   const state = store.getState()
 
   return {
-    errorFormatter,
+    errorFormatter: errorDispatch({ target: props.target }),
     compiler: resolveFrom(contextModules(state), 'typescript'),
     configFile: tsconfig(state),
     silent: true,
@@ -139,17 +154,62 @@ const typescriptOptions = () => {
   }
 }
 
-const errorFormatter = (error: ErrorInfo) => {
-  const file = error.file === '' ? '' : chalk.cyan(relative(error.context, error.file))
-  const code = chalk.gray(`TS${error.code}`)
+const updateFiles = async () => {
+  const state = store.getState()
 
-  if (error.file === '') {
-    return `${chalk.red(error.severity)} ${code}: ${error.content}`
-  } else {
-    const loc = `:${chalk.yellow(String(error.line))}:${chalk.yellow(String(error.character))}`
+  const filenames = keys(files(state))
+  const p: { [key: string]: Promise<FileSource> } = {}
 
-    return `${file}${loc} - ${chalk.red(error.severity)} ${code}: ${error.content}`
-  }
+  forOwn(errors(store.getState()), ({ error }) => {
+    if (error.file !== '' && !includes(filenames, error.file) && isUndefined(p[error.file])) {
+      p[error.file] = readFileAsync(error.file)
+        .then(buf => buf.toString('utf-8'))
+        .then(source => ({
+          source,
+          file: error.file
+        }))
+    }
+  })
+
+  return Promise.all(values(p)).then(props => {
+    forEach(props, prop => store.dispatch(ADD_FILE_SOURCE(prop)))
+  })
+}
+
+const reportErrors = () => {
+  const state = store.getState()
+  logger.log('')
+
+  // logger.log(files(store.getState()))
+
+  forEach(errors(state), ({ error }) => {
+    const file = error.file === '' ? '' : chalk.cyan(relative(error.context, error.file))
+    const code = chalk.bold.gray(`TS${error.code}`)
+    const severity =
+      error.severity === 'error'
+        ? chalk.bold.red(upperCase(error.severity))
+        : chalk.bold.yellow(upperCase(error.severity))
+
+    if (error.file === '') {
+      logger.log(`${severity} ${code}: ${error.content}`)
+    } else {
+      const source = files(state)[error.file]
+
+      const frame = codeFrameColumns(
+        source,
+        { start: { line: error.line, column: error.character } },
+        { highlightCode: chalk.supportsColor.hasBasic }
+      )
+        .split('\n')
+        .map(str => `  ${str}`)
+        .join(EOL)
+
+      const loc = `:${chalk.yellow(String(error.line))}:${chalk.yellow(String(error.character))}`
+
+      logger.log(`${file}${loc} - ${severity} ${code}: ${error.content}`, EOL, frame, EOL)
+      // logger.log(frame)
+    }
+  })
 }
 
 const gulpTask = async (): Promise<BuildResult> => {
@@ -196,7 +256,7 @@ const gulpTask = async (): Promise<BuildResult> => {
 
             const content = compiler.flattenDiagnosticMessageText(error.diagnostic.messageText, EOL)
 
-            rendered = errorFormatter({
+            rendered = errorDispatch({ target: 'esm' })({
               severity,
               code: error.diagnostic.code,
               content,
@@ -271,7 +331,7 @@ const webpackRules = (props: { target: 'cjs' | 'umd' }): webpack.Rule[] => {
         },
         {
           loader: resolveFrom(rootModules(state), 'ts-loader'),
-          options: typescriptOptions()
+          options: typescriptOptions({ target })
         }
       ]
     },
@@ -495,24 +555,23 @@ export const build = async () => {
         throw error
       }
     })
+    .then(updateFiles)
+    .then(reportErrors)
     .then(() => {
-      logger.log('')
       const fail = filter(results, result => result.hasErrors)
 
-      forEach(fail, result =>
-        logger.error(
-          'Failed to build',
-          buildTitle({ target: result.target }),
-          EOL,
-          join(result.errors, EOL),
-          EOL
-        )
-      )
+      // forEach(fail, result =>
+      //   logger.error(
+      //     'Failed to build',
+      //     buildTitle({ target: result.target }),
+      //     EOL,
+      //     join(result.errors, EOL),
+      //     EOL
+      //   )
+      // )
 
       if (!isEmpty(fail)) {
-        const n = fail.length === 1 ? 'an error' : `${fail.length} errors`
-
-        throw new Error(`Recce encountered ${n} and could not finish the build`)
+        throw new Error(`Recce could not finish the build`)
       }
     })
 }

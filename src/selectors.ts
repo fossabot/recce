@@ -10,7 +10,8 @@ import {
   MinifyOptions,
   NodeOptions,
   PackageJson,
-  State
+  State,
+  TypescriptErrorRecord
 } from './types'
 
 export const _entries = (state: State): string[] => state.build.entries
@@ -29,6 +30,8 @@ export const rootModules = (state: State): string => state.prefix.root
 export const targets = (state: State): BuildTargets => state.build.targets
 export const uglifyOptions = (state: State): MinifyOptions => state.defaults.uglify
 export const declaration = (state: State): boolean => !!state.build.compilerOptions.declaration
+export const errors = (state: State): { [key: string]: TypescriptErrorRecord } => state.build.errors
+export const files = (state: State) => state.build.files
 
 // Derivatives
 
