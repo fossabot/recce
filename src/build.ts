@@ -1,5 +1,5 @@
 // import produce from 'immer'
-import { BuildTarget, FileSource, State, TypescriptError } from './types'
+import { BuildTarget, State } from './types'
 import Listr = require('listr')
 import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 import babel = require('gulp-babel')
@@ -17,17 +17,9 @@ import { logger } from '@escapace/logger'
 import { store } from './store'
 import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
-import { readFileAsync } from './utilities/readFileAsync'
-import { EOL } from 'os'
-import chalk from 'chalk'
 import { FilterWebpackPlugin } from './filterWebpackPlugin'
-import ObjectHash = require('node-object-hash')
-import { ADD_FILE_SOURCE, ADD_TYPESCRIPT_ERROR } from './actions'
-import { codeFrameColumns } from '@babel/code-frame'
 
-const objectHash = ObjectHash()
-
-import { normalize, relative } from 'path'
+import { dispatchError, dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
 
 import {
   compilerOptions,
@@ -37,8 +29,6 @@ import {
   context,
   contextModules,
   declaration,
-  errors,
-  files,
   lodashId,
   lodashOptions,
   nodeOptions,
@@ -55,23 +45,7 @@ import {
   webpackEntries
 } from './selectors'
 
-import {
-  camelCase,
-  compact,
-  concat,
-  filter,
-  forEach,
-  forOwn,
-  includes,
-  isEmpty,
-  isNull,
-  isUndefined,
-  keys,
-  map,
-  omit,
-  upperCase,
-  values
-} from 'lodash'
+import { camelCase, compact, concat, filter, includes, isEmpty, isNull, map, omit } from 'lodash'
 
 export interface BuildResult {
   target: BuildTarget
@@ -128,88 +102,17 @@ const babelOptions = (props: BuildProps) => {
 const gulpBabelOptions = () => omit(babelOptions({ target: 'esm' }), ['cacheDirectory'])
 const webpackBabelOptions = babelOptions
 
-const errorDispatch = (props: { target: BuildTarget }) => (error: TypescriptError): string => {
-  const hash = objectHash.hash(error)
-  store.dispatch(
-    ADD_TYPESCRIPT_ERROR({
-      targets: [props.target],
-      hash,
-      error
-    })
-  )
-
-  return hash
-}
-
 const typescriptOptions = (props: { target: BuildTarget }) => {
   const state = store.getState()
 
   return {
-    errorFormatter: errorDispatch({ target: props.target }),
+    errorFormatter: dispatchError({ target: props.target }),
     compiler: resolveFrom(contextModules(state), 'typescript'),
     configFile: tsconfig(state),
     silent: true,
     transpileOnly: false,
     compilerOptions: compilerOptions(state)
   }
-}
-
-const updateFiles = async () => {
-  const state = store.getState()
-
-  const filenames = keys(files(state))
-  const p: { [key: string]: Promise<FileSource> } = {}
-
-  forOwn(errors(store.getState()), ({ error }) => {
-    if (error.file !== '' && !includes(filenames, error.file) && isUndefined(p[error.file])) {
-      p[error.file] = readFileAsync(error.file)
-        .then(buf => buf.toString('utf-8'))
-        .then(source => ({
-          source,
-          file: error.file
-        }))
-    }
-  })
-
-  return Promise.all(values(p)).then(props => {
-    forEach(props, prop => store.dispatch(ADD_FILE_SOURCE(prop)))
-  })
-}
-
-const reportErrors = () => {
-  const state = store.getState()
-  logger.log('')
-
-  // logger.log(files(store.getState()))
-
-  forEach(errors(state), ({ error }) => {
-    const file = error.file === '' ? '' : chalk.cyan(relative(error.context, error.file))
-    const code = chalk.bold.gray(`TS${error.code}`)
-    const severity =
-      error.severity === 'error'
-        ? chalk.bold.red(upperCase(error.severity))
-        : chalk.bold.yellow(upperCase(error.severity))
-
-    if (error.file === '') {
-      logger.log(`${severity} ${code}: ${error.content}`)
-    } else {
-      const source = files(state)[error.file]
-
-      const frame = codeFrameColumns(
-        source,
-        { start: { line: error.line, column: error.character } },
-        { highlightCode: chalk.supportsColor.hasBasic }
-      )
-        .split('\n')
-        .map(str => `  ${str}`)
-        .join(EOL)
-
-      const loc = `:${chalk.yellow(String(error.line))}:${chalk.yellow(String(error.character))}`
-
-      logger.log(`${file}${loc} - ${severity} ${code}: ${error.content}`, EOL, frame, EOL)
-      // logger.log(frame)
-    }
-  })
 }
 
 const gulpTask = async (): Promise<BuildResult> => {
@@ -241,32 +144,7 @@ const gulpTask = async (): Promise<BuildResult> => {
       .pipe(
         project({
           error(error) {
-            let rendered: string = error.message
-
-            // if (error.tsFile) {
-            const severity = compiler.DiagnosticCategory[error.diagnostic.category].toLowerCase()
-
-            const file = error.diagnostic.file
-
-            const position =
-              file === undefined
-                ? undefined
-                : // tslint:disable-next-line no-non-null-assertion no-unnecessary-type-assertion
-                  file.getLineAndCharacterOfPosition(error.diagnostic.start!)
-
-            const content = compiler.flattenDiagnosticMessageText(error.diagnostic.messageText, EOL)
-
-            rendered = errorDispatch({ target: 'esm' })({
-              severity,
-              code: error.diagnostic.code,
-              content,
-              file: file === undefined ? '' : normalize(file.fileName),
-              // tslint:disable-next-line restrict-plus-operands
-              line: position === undefined ? 0 : position.line + 1,
-              // tslint:disable-next-line restrict-plus-operands
-              character: position === undefined ? 0 : position.character + 1,
-              context: context(state)
-            })
+            const rendered = normalizeGulpError(error, compiler)
 
             if (!includes(result.errors, rendered)) {
               result.errors.push(rendered)
@@ -465,6 +343,7 @@ const buildTitle = (props: { target: BuildTarget }): string => {
     }
   }
 }
+
 const buildTask = async (props: { target: BuildTarget }): Promise<BuildResult> => {
   const { target } = props
 
@@ -555,7 +434,7 @@ export const build = async () => {
         throw error
       }
     })
-    .then(updateFiles)
+    .then(dispatchFilesFromErrors)
     .then(reportErrors)
     .then(() => {
       const fail = filter(results, result => result.hasErrors)

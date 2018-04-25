@@ -129,6 +129,7 @@
   "scripts": {
     "build": "rimraf lib && tsc && oclif-dev manifest && oclif-dev readme",
     "test:travis": "npm run lint && npm run test",
+    "typecheck": "tsc --noEmit",
     "lint": "tslint -p . -t stylish && tslint -p test -t stylish",
     "postpack": "rimraf .oclif.manifest.json",
     "prepack": "npm run build",
