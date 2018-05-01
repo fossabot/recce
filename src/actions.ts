@@ -37,3 +37,6 @@ export const ADD_TYPESCRIPT_ERROR = actionCreatorFactory<TypescriptErrorRecord>(
 )
 
 export const ADD_FILE_SOURCE = actionCreatorFactory<FileSource>('FILE_SOURCE')
+
+export const RESET_FILE_SOURCES = actionCreatorFactory<void>('RESET_FILE_SOURCES')
+export const RESET_TYPESCRIPT_ERRORS = actionCreatorFactory<void>('RESET_TYPESCRIPT_ERRORS')

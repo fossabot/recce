@@ -1,4 +1,28 @@
 import { CompilerOptions, LodashOptions, MinifyOptions, NodeOptions, State } from './types'
+import { flags } from '@oclif/command'
+
+export const commandFlags = {
+  entry: flags.string({
+    char: 'e',
+    description: 'project entry point',
+    multiple: true,
+    required: false
+  }),
+  output: flags.string({
+    char: 'o',
+    description: 'output directory path',
+    default: 'lib',
+    required: false
+  }),
+  minimize: flags.boolean({
+    description: '[default: true] minimize javascript',
+    allowNo: true
+  }),
+  clean: flags.boolean({
+    description: '[default: true] clean output directory',
+    allowNo: true
+  })
+}
 
 const TS_COMPILER_OPTIONS: CompilerOptions = {
   downlevelIteration: true,

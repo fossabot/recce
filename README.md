@@ -27,6 +27,7 @@ USAGE
 <!-- commands -->
 * [`recce build`](#recce-build)
 * [`recce help [COMMAND]`](#recce-help-command)
+* [`recce watch`](#recce-watch)
 
 ## `recce build`
 
@@ -53,7 +54,7 @@ EXAMPLES
 
   $ recce build -t cjs -t umd -t esm -e src/hello.ts -e src/world.ts
 
-  $ recce build --no-clean -no-minimize -t umd -e src/hello.ts
+  $ recce build --no-clean --no-minimize -t umd -e src/hello.ts
 ```
 
 _See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/build.ts)_
@@ -73,5 +74,31 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v1.2.4/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v1.2.5/src/commands/help.ts)_
+
+## `recce watch`
+
+TypeScript library build tool
+
+```
+USAGE
+  $ recce watch
+
+OPTIONS
+  -c, --context=context  project directory
+  -e, --entry=entry      project entry point
+  -h, --help             show CLI help
+  -o, --output=output    [default: lib] output directory path
+  -q, --quiet            don't output anything
+  -t, --target=cjs|umd   (required) types of module systems
+  --clean                [default: true] clean output directory
+  --minimize             [default: true] minimize javascript
+
+EXAMPLES
+  $ recce watch -c [directory] -t umd -e src/hello.ts
+
+  $ recce watch -c [directory] -t cjs -e src/hello.ts -e src/world.ts
+```
+
+_See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/watch.ts)_
 <!-- commandsstop -->

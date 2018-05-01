@@ -9,6 +9,8 @@ import { Action, ActionCreator, AnyAction, State } from './types'
 import {
   ADD_FILE_SOURCE,
   ADD_TYPESCRIPT_ERROR,
+  RESET_FILE_SOURCES,
+  RESET_TYPESCRIPT_ERRORS,
   SET_BUILD_OPTIONS,
   SET_CONTEXT,
   SET_MODE,
@@ -64,6 +66,14 @@ export const store: Store<State> = createStore(
       } else if (isType(action, ADD_FILE_SOURCE)) {
         return produce(state, (draft: State) => {
           draft.build.files[action.payload.file] = action.payload.source
+        })
+      } else if (isType(action, RESET_FILE_SOURCES)) {
+        return produce(state, (draft: State) => {
+          draft.build.files = {}
+        })
+      } else if (isType(action, RESET_TYPESCRIPT_ERRORS)) {
+        return produce(state, (draft: State) => {
+          draft.build.errors = {}
         })
       }
     }

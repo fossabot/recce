@@ -57,7 +57,7 @@ export interface BuildOptions {
   clean: boolean
 }
 
-export type Mode = 'build' | 'test'
+export type Mode = 'build' | 'test' | 'watch'
 
 export interface Prefix {
   root: string

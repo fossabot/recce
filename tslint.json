@@ -1,6 +1,7 @@
 {
   "extends": ["tslint-config-escapace"],
   "rules": {
+    "promise-function-async": false,
     "max-func-body-length": false,
     "no-useless-files": false,
     "no-unsafe-any": false,

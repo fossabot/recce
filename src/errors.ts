@@ -1,6 +1,11 @@
 import ObjectHash = require('node-object-hash')
 import chalk from 'chalk'
-import { ADD_FILE_SOURCE, ADD_TYPESCRIPT_ERROR } from './actions'
+import {
+  ADD_FILE_SOURCE,
+  ADD_TYPESCRIPT_ERROR,
+  RESET_FILE_SOURCES,
+  RESET_TYPESCRIPT_ERRORS
+} from './actions'
 import { BuildTarget, FileSource, State, TypescriptError } from './types'
 import { EOL } from 'os'
 // tslint:disable-next-line no-submodule-imports
@@ -9,11 +14,16 @@ import { codeFrameColumns } from '@babel/code-frame'
 import { context, errors, files } from './selectors'
 import { forEach, forOwn, includes, isUndefined, keys, upperCase, values } from 'lodash'
 import { logger } from '@escapace/logger'
-import { readFileAsync } from './utilities/readFileAsync'
 import { normalize, relative } from 'path'
 import { store } from './store'
+import { readFileAsync } from './utilities/readFileAsync'
 
 const objectHash = ObjectHash()
+
+export const resetErrors = () => {
+  store.dispatch(RESET_FILE_SOURCES(undefined))
+  store.dispatch(RESET_TYPESCRIPT_ERRORS(undefined))
+}
 
 export const dispatchError = (props: { target: BuildTarget }) => (
   error: TypescriptError
@@ -54,9 +64,6 @@ export const dispatchFilesFromErrors = async () => {
 
 export const reportErrors = () => {
   const state = store.getState()
-  logger.log('')
-
-  // logger.log(files(store.getState()))
 
   forEach(errors(state), ({ error }) => {
     const file = error.file === '' ? '' : chalk.cyan(relative(error.context, error.file))
@@ -71,14 +78,18 @@ export const reportErrors = () => {
     } else {
       const source = files(state)[error.file]
 
-      const frame = codeFrameColumns(
-        source,
-        { start: { line: error.line, column: error.character } },
-        { highlightCode: chalk.supportsColor.hasBasic }
-      )
-        .split('\n')
-        .map(str => `  ${str}`)
-        .join(EOL)
+      let frame = ''
+
+      if (!isUndefined(source)) {
+        frame = codeFrameColumns(
+          source,
+          { start: { line: error.line, column: error.character } },
+          { highlightCode: chalk.supportsColor.hasBasic }
+        )
+          .split('\n')
+          .map(str => `  ${str}`)
+          .join(EOL)
+      }
 
       const loc = `:${chalk.yellow(String(error.line))}:${chalk.yellow(String(error.character))}`
 

@@ -32,15 +32,21 @@ export const uglifyOptions = (state: State): MinifyOptions => state.defaults.ugl
 export const declaration = (state: State): boolean => !!state.build.compilerOptions.declaration
 export const errors = (state: State): { [key: string]: TypescriptErrorRecord } => state.build.errors
 export const files = (state: State) => state.build.files
+export const mode = (state: State) => state.mode
 
 // Derivatives
+
+export const condWatch = createSelector(mode, m => m === 'watch')
+export const condBuild = createSelector(mode, m => m === 'build')
 
 export const dependencies = createSelector(packageJson, pj => pj.dependencies)
 export const devDependencies = createSelector(packageJson, pj => pj.dependencies)
 export const entries = createSelector(_entries, context, (ents, ctx) =>
   map(ents, ent => resolve(ctx, ent))
 )
-export const combinedDependencies = createSelector(devDependencies, dependencies, assign)
+export const combinedDependencies = createSelector(devDependencies, dependencies, (dev, dep) =>
+  assign({}, dev, dep)
+)
 
 export const outputFilename = createSelector(context, _outputPath, resolve)
 export const outputPath = createSelector(context, _outputPath, resolve)
@@ -60,7 +66,8 @@ export const condLodash = createSelector(combinedDependencies, _lodashId, (dep, 
   some(lmn, l => dep[l])
 )
 
-export const lodashId = createSelector(combinedDependencies, _lodashId, (dep, lmn): string[] =>
+// TODO: wrong types
+export const lodashId = createSelector(combinedDependencies, _lodashId, (dep, lmn) =>
   filter(lmn, l => dep[l])
 )
 

@@ -1,7 +1,6 @@
 // import produce from 'immer'
+import typescript = require('gulp-typescript')
 import { BuildTarget, State } from './types'
-import Listr = require('listr')
-import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 import babel = require('gulp-babel')
 import gulp = require('gulp')
 import lodashPlugin = require('lodash-webpack-plugin')
@@ -9,23 +8,24 @@ import merge = require('merge2')
 import nodeExternals = require('webpack-node-externals')
 import resolveFrom = require('resolve-from')
 import sourcemaps = require('gulp-sourcemaps')
-import typescript = require('gulp-typescript')
+import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 import webpack = require('webpack')
 import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-import { ListrTask } from 'listr'
 import { logger } from '@escapace/logger'
 import { store } from './store'
 import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
 import { FilterWebpackPlugin } from './filterWebpackPlugin'
+import { DoneHookWebpackPlugin } from './doneHookWebpackPlugin'
 
 import { dispatchError, dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
 
 import {
   compilerOptions,
-  condClean,
+  condBuild,
   condLodash,
   condMinimize,
+  condWatch,
   context,
   contextModules,
   declaration,
@@ -45,7 +45,21 @@ import {
   webpackEntries
 } from './selectors'
 
-import { camelCase, compact, concat, filter, includes, isEmpty, isNull, map, omit } from 'lodash'
+import {
+  camelCase,
+  compact,
+  concat,
+  defaults,
+  filter,
+  first,
+  includes,
+  isEmpty,
+  isNull,
+  isUndefined,
+  map,
+  noop,
+  omit
+} from 'lodash'
 
 export interface BuildResult {
   target: BuildTarget
@@ -115,7 +129,7 @@ const typescriptOptions = (props: { target: BuildTarget }) => {
   }
 }
 
-const gulpTask = async (): Promise<BuildResult> => {
+const gulpBuild = async (): Promise<BuildResult> => {
   const state = store.getState()
   const compiler = await import(resolveFrom(contextModules(state), 'typescript'))
 
@@ -231,6 +245,7 @@ const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configu
   const state = store.getState()
 
   return {
+    name: target,
     cache: false,
     context: context(state),
     target: target === 'cjs' ? 'node' : 'web',
@@ -252,6 +267,8 @@ const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configu
       minimize: false
     },
     plugins: compact([
+      condWatch(state) ? new DoneHookWebpackPlugin() : undefined,
+      // new webpack.NoEmitOnErrorsPlugin(),
       condLodash(state) ? new lodashPlugin(lodashOptions(state)) : undefined,
       condMinimize(state)
         ? new UglifyJsPlugin({
@@ -285,172 +302,156 @@ const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configu
   }
 }
 
-const webpackTask = async (props: { target: 'cjs' | 'umd' }): Promise<BuildResult> => {
+const webpackBuild = async (props: {
+  target: 'cjs' | 'umd'
+  cb?: (result: BuildResult) => void
+}): Promise<{
+  compiler: webpack.Compiler
+  close: () => void
+  invalidate: () => void
+}> => {
   const configuration = webpackConfiguration(props)
+  const compiler = webpack(configuration)
 
-  const result: BuildResult = {
-    target: props.target,
-    assets: [],
-    errors: [],
-    hasErrors: false
+  const { target, cb } = defaults(props, { cb: noop })
+
+  const method = (handler: webpack.ICompiler.Handler) => {
+    const state = store.getState()
+
+    if (condBuild(state)) {
+      return compiler.run(handler) as undefined
+    } else if (condWatch(state)) {
+      return compiler.watch(
+        {
+          aggregateTimeout: 300,
+          poll: true
+        },
+        handler
+      )
+    }
   }
 
-  return new Promise<BuildResult>(resolve => {
-    // tslint:disable-next-line no-any
-    webpack(configuration, (err: null | Error & { details?: string }, stats: any) => {
-      const info = stats.toJson({
-        assets: true,
-        errors: true
-      })
-
-      if (!isNull(err) || stats.hasErrors() === true) {
-        result.hasErrors = true
-        result.assets = map(info.assets, asset => asset.name)
-
-        if (isNull(err)) {
-          result.errors = map(stats.compilation.errors, (error, index) => {
-            if (error.loaderSource === 'ts-loader') {
-              return error.message
-            } else {
-              return info.errors[index]
-            }
-          })
-        } else {
-          result.errors = concat(compact([err.message, err.details]))
+  return new Promise<{
+    compiler: webpack.Compiler
+    close: () => void
+    invalidate: () => void
+  }>(resolve => {
+    const watching: webpack.Compiler.Watching | undefined = method(
+      // tslint:disable-next-line no-any
+      (err: null | Error & { details?: string }, stats: any) => {
+        const result: BuildResult = {
+          target,
+          assets: [],
+          errors: [],
+          hasErrors: false
         }
 
-        resolve(result)
-      } else {
-        result.assets = map(info.assets, asset => asset.name)
-        resolve(result)
+        const info = stats.toJson({
+          assets: true,
+          errors: true
+        })
+
+        if (!isNull(err) || stats.hasErrors() === true) {
+          result.hasErrors = true
+          result.assets = map(info.assets, asset => asset.name)
+
+          if (isNull(err)) {
+            result.errors = map(stats.compilation.errors, (error, index) => {
+              if (error.loaderSource === 'ts-loader') {
+                return error.message
+              } else {
+                return info.errors[index]
+              }
+            })
+          } else {
+            result.errors = concat(compact([err.message, err.details]))
+          }
+
+          resolve({
+            close: isUndefined(watching) ? noop : watching.close,
+            compiler: compiler,
+            invalidate: isUndefined(watching) ? noop : watching.invalidate
+          })
+
+          cb(result)
+        } else {
+          result.assets = map(info.assets, asset => asset.name)
+
+          resolve({
+            close: isUndefined(watching) ? noop : watching.close,
+            compiler: compiler,
+            invalidate: isUndefined(watching) ? noop : watching.invalidate
+          })
+
+          cb(result)
+        }
       }
-    })
+    )
   })
 }
 
-const buildTitle = (props: { target: BuildTarget }): string => {
-  const { target } = props
-
-  switch (target) {
-    case 'cjs': {
-      return 'CommonJS modules'
-    }
-    case 'umd': {
-      return 'UMD (Universal Module Definition) modules'
-    }
-    case 'esm': {
-      return 'ECMAScript 6 modules'
-    }
-  }
-}
-
-const buildTask = async (props: { target: BuildTarget }): Promise<BuildResult> => {
-  const { target } = props
-
-  switch (target) {
-    case 'esm': {
-      return gulpTask()
-    }
-    default: {
-      return webpackTask({
-        target
-      }).catch(err => ({
-        hasErrors: true,
-        target,
-        assets: [],
-        errors: compact([err.message, err.details])
-      }))
-    }
-  }
-}
+// const buildTitle = (props: { target: BuildTarget }): string => {
+//   const { target } = props
+//
+//   switch (target) {
+//     case 'cjs': {
+//       return 'CommonJS modules'
+//     }
+//     case 'umd': {
+//       return 'UMD (Universal Module Definition) modules'
+//     }
+//     case 'esm': {
+//       return 'ECMAScript 6 modules'
+//     }
+//   }
+// }
 
 export const build = async () => {
-  const results: BuildResult[] = []
+  await checkEntries()
+  await clean()
 
-  return new Listr(
-    [
-      {
-        title: 'Check configuration',
-        task: checkEntries
-      },
-      {
-        title: 'Clean output directory',
-        task: clean,
-        skip: () => {
-          const state = store.getState()
+  const state = store.getState()
 
-          return !condClean(state)
+  const results: BuildResult[] = await Promise.all(
+    map(targets(state), target => {
+      switch (target) {
+        case 'esm': {
+          return gulpBuild()
         }
-      },
-      {
-        title: 'Build modules',
-        task: () => {
-          const state = store.getState()
-
-          return new Listr(
-            [
-              ...map<BuildTarget, ListrTask>(targets(state), target => {
-                return {
-                  title: `Build ${buildTitle({ target })}`,
-                  // tslint:disable-next-line promise-function-async
-                  task: () =>
-                    buildTask({ target }).then(result => {
-                      results.push(result)
-
-                      if (result.hasErrors) {
-                        throw new Error()
-                      }
-                    })
-                }
-              })
-            ],
-            {
-              concurrent: true,
-              exitOnError: false
-            }
+        default: {
+          return new Promise<BuildResult>(resolve =>
+            webpackBuild({
+              target,
+              // tslint:disable-next-line no-unnecessary-callback-wrapper
+              cb: result => resolve(result)
+            })
           )
         }
       }
-    ],
-    {
-      renderer: ((): 'verbose' | 'silent' | 'default' => {
-        switch (logger.level) {
-          case 'silent': {
-            return 'silent'
-          }
-          case 'verbose': {
-            return 'verbose'
-          }
-          default: {
-            return 'default'
-          }
-        }
-      })()
-    }
+    })
   )
-    .run()
-    .catch(error => {
-      if (error.message !== 'Something went wrong') {
-        throw error
-      }
-    })
-    .then(dispatchFilesFromErrors)
-    .then(reportErrors)
-    .then(() => {
-      const fail = filter(results, result => result.hasErrors)
 
-      // forEach(fail, result =>
-      //   logger.error(
-      //     'Failed to build',
-      //     buildTitle({ target: result.target }),
-      //     EOL,
-      //     join(result.errors, EOL),
-      //     EOL
-      //   )
-      // )
+  const fail = filter(results, result => result.hasErrors)
 
-      if (!isEmpty(fail)) {
-        throw new Error(`Recce could not finish the build`)
-      }
-    })
+  if (!isEmpty(fail)) {
+    await dispatchFilesFromErrors()
+    reportErrors()
+
+    throw new Error('Recce could not finish the build')
+  }
+}
+
+export const watch = async () => {
+  await checkEntries()
+  await clean()
+
+  const state = store.getState()
+  const target = first(targets(state)) as 'cjs' | 'umd'
+
+  return webpackBuild({
+    target,
+    cb: () => {
+      logger.info('Should be last')
+    }
+  })
 }
