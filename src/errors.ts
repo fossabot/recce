@@ -6,7 +6,7 @@ import {
   RESET_FILE_SOURCES,
   RESET_TYPESCRIPT_ERRORS
 } from './actions'
-import { BuildTarget, FileSource, State, TypescriptError } from './types'
+import { BuildModule, FileSource, State, TypescriptError } from './types'
 import { EOL } from 'os'
 // tslint:disable-next-line no-submodule-imports
 import { TypeScriptError } from 'gulp-typescript/release/reporter'
@@ -25,13 +25,13 @@ export const resetErrors = () => {
   store.dispatch(RESET_TYPESCRIPT_ERRORS(undefined))
 }
 
-export const dispatchError = (props: { target: BuildTarget }) => (
+export const dispatchError = (props: { module: BuildModule }) => (
   error: TypescriptError
 ): string => {
   const hash = objectHash.hash(error)
   store.dispatch(
     ADD_TYPESCRIPT_ERROR({
-      targets: [props.target],
+      modules: [props.module],
       hash,
       error
     })
@@ -114,7 +114,7 @@ export const normalizeGulpError = (error: TypeScriptError, compiler: any) => {
 
   const content = compiler.flattenDiagnosticMessageText(error.diagnostic.messageText, EOL)
 
-  dispatchError({ target: 'esm' })({
+  dispatchError({ module: 'esm' })({
     severity,
     code: error.diagnostic.code,
     content,

@@ -31,7 +31,7 @@ USAGE
 
 ## `recce build`
 
-TypeScript library build tool
+build TypeScript library
 
 ```
 USAGE
@@ -41,20 +41,20 @@ OPTIONS
   -c, --context=context     project directory
   -e, --entry=entry         project entry point
   -h, --help                show CLI help
+  -m, --module=cjs|umd|esm  module code generation
   -o, --output=output       [default: lib] output directory path
   -q, --quiet               don't output anything
-  -t, --target=cjs|umd|esm  types of module systems
   --clean                   [default: true] clean output directory
   --minimize                [default: true] minimize javascript
 
 EXAMPLES
-  $ recce build -c [directory] -t esm -e src/hello.ts
+  $ recce build -c [directory] -m esm -e src/hello.ts
 
-  $ recce build -c [directory] -t cjs -e src/hello.ts -e src/world.ts
+  $ recce build -c [directory] -m cjs -e src/hello.ts -e src/world.ts
 
-  $ recce build -t cjs -t umd -t esm -e src/hello.ts -e src/world.ts
+  $ recce build -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts
 
-  $ recce build --no-clean --no-minimize -t umd -e src/hello.ts
+  $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
 _See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/build.ts)_
@@ -74,11 +74,11 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v1.2.5/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v1.2.6/src/commands/help.ts)_
 
 ## `recce watch`
 
-TypeScript library build tool
+watch for changes in files and perform the build again
 
 ```
 USAGE
@@ -88,16 +88,16 @@ OPTIONS
   -c, --context=context  project directory
   -e, --entry=entry      project entry point
   -h, --help             show CLI help
+  -m, --module=cjs|umd   (required) module code generation
   -o, --output=output    [default: lib] output directory path
   -q, --quiet            don't output anything
-  -t, --target=cjs|umd   (required) types of module systems
   --clean                [default: true] clean output directory
   --minimize             [default: true] minimize javascript
 
 EXAMPLES
-  $ recce watch -c [directory] -t umd -e src/hello.ts
+  $ recce watch -c [directory] -m umd -e src/hello.ts
 
-  $ recce watch -c [directory] -t cjs -e src/hello.ts -e src/world.ts
+  $ recce watch -c [directory] -m cjs -e src/hello.ts -e src/world.ts
 ```
 
 _See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v0.0.2/src/commands/watch.ts)_

@@ -57,9 +57,9 @@ export const store: Store<State> = createStore(
           if (isUndefined(errors[action.payload.hash])) {
             errors[action.payload.hash] = action.payload
           } else {
-            errors[action.payload.hash].targets = union(
-              errors[action.payload.hash].targets,
-              action.payload.targets
+            errors[action.payload.hash].modules = union(
+              errors[action.payload.hash].modules,
+              action.payload.modules
             )
           }
         })

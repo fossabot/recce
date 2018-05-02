@@ -24,13 +24,13 @@ describe('build', () => {
 
   test
     .stdout()
-    .command(['build', '-c', resolve('test/fixtures/hello-world'), '-t', 'cjs'])
+    .command(['build', '-c', resolve('test/fixtures/hello-world'), '-m', 'cjs'])
     .catch(/Specify at least one entry for CommonJS and UMD builds/)
     .it('throws on target cjs and no entry')
 
   test
     .stdout()
-    .command(['build', '-c', resolve('test/fixtures/hello-world'), '-t', 'umd'])
+    .command(['build', '-c', resolve('test/fixtures/hello-world'), '-m', 'umd'])
     .catch(/Specify at least one entry for CommonJS and UMD builds/)
     .it('throws on target umd and no entry')
 
@@ -43,8 +43,8 @@ describe('build', () => {
 
   test
     .stdout()
-    .command(['build', '-c', resolve('test/fixtures/hello-world'), '-t', 'esm'])
-    .it('build -c [directory] -t esm -e src/hello.ts')
+    .command(['build', '-c', resolve('test/fixtures/hello-world'), '-m', 'esm'])
+    .it('build -c [directory] -m esm -e src/hello.ts')
 
   test
     .stdout()
@@ -52,12 +52,12 @@ describe('build', () => {
       'build',
       '-c',
       resolve('test/fixtures/hello-world'),
-      '-t',
+      '-m',
       'cjs',
       '-e',
       'src/hello.ts'
     ])
-    .it('build -c [directory] -t cjs -e src/hello.ts')
+    .it('build -c [directory] -m cjs -e src/hello.ts')
 
   test
     .stdout()
@@ -65,12 +65,12 @@ describe('build', () => {
       'build',
       '-c',
       resolve('test/fixtures/hello-world'),
-      '-t',
+      '-m',
       'umd',
       '-e',
       'src/hello.ts'
     ])
-    .it('build -c [directory] -t umd -e src/hello.ts')
+    .it('build -c [directory] -m umd -e src/hello.ts')
 
   test
     .stdout()
@@ -78,16 +78,16 @@ describe('build', () => {
       'build',
       '-c',
       resolve('test/fixtures/hello-world'),
-      '-t',
+      '-m',
       'cjs',
-      '-t',
+      '-m',
       'umd',
-      '-t',
+      '-m',
       'esm',
       '-e',
       'src/hello.ts'
     ])
-    .it('build -c [directory] -t cjs -t umd -t esm -e src/hello.ts')
+    .it('build -c [directory] -m cjs -m umd -m esm -e src/hello.ts')
 
   // Two entries
 
@@ -97,14 +97,14 @@ describe('build', () => {
       'build',
       '-c',
       resolve('test/fixtures/hello-world'),
-      '-t',
+      '-m',
       'cjs',
       '-e',
       'src/hello.ts',
       '-e',
       'src/world.ts'
     ])
-    .it('build -c [directory] -t cjs -e src/hello.ts -e src/world.ts')
+    .it('build -c [directory] -m cjs -e src/hello.ts -e src/world.ts')
 
   test
     .stdout()
@@ -112,14 +112,14 @@ describe('build', () => {
       'build',
       '-c',
       resolve('test/fixtures/hello-world'),
-      '-t',
+      '-m',
       'umd',
       '-e',
       'src/hello.ts',
       '-e',
       'src/world.ts'
     ])
-    .it('build -c [directory] -t umd -e src/hello.ts -e src/world.ts')
+    .it('build -c [directory] -m umd -e src/hello.ts -e src/world.ts')
 
   test
     .stdout()
@@ -127,16 +127,16 @@ describe('build', () => {
       'build',
       '-c',
       resolve('test/fixtures/hello-world'),
-      '-t',
+      '-m',
       'cjs',
-      '-t',
+      '-m',
       'umd',
-      '-t',
+      '-m',
       'esm',
       '-e',
       'src/hello.ts',
       '-e',
       'src/world.ts'
     ])
-    .it('build -c [directory] -t cjs -t umd -t esm -e src/hello.ts -e src/world.ts')
+    .it('build -c [directory] -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts')
 })

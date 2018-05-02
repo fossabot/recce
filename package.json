@@ -2,6 +2,7 @@
   "name": "recce",
   "version": "0.0.2",
   "author": "escapace <opensource@escapace.com>",
+  "description": "TypeScript library build tool",
   "license": "MPL-2.0",
   "bin": {
     "recce": "./bin/run"
@@ -23,6 +24,7 @@
     "find-npm-prefix": "1.0.2",
     "gulp": "3.9.1",
     "gulp-babel": "8.0.0-beta.2",
+    "gulp-filter": "5.1.0",
     "gulp-sourcemaps": "2.6.4",
     "gulp-typescript": "4.0.2",
     "immer": "1.2.1",
@@ -53,6 +55,7 @@
     "@types/chai": "4.1.3",
     "@types/gulp": "4.0.5",
     "@types/gulp-babel": "6.1.29",
+    "@types/gulp-filter": "3.0.32",
     "@types/gulp-sourcemaps": "0.0.32",
     "@types/lodash": "4.14.108",
     "@types/lodash-webpack-plugin": "0.11.3",
@@ -90,7 +93,7 @@
   },
   "files": [".oclif.manifest.json", "/bin", "/lib"],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": [],
+  "keywords": ["TypeScript", "build"],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",

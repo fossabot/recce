@@ -4,7 +4,7 @@ import { assign, filter, fromPairs, get, isString, map, some } from 'lodash'
 import semver = require('semver')
 
 import {
-  BuildTargets,
+  BuildModules,
   CompilerOptions,
   LodashOptions,
   MinifyOptions,
@@ -27,7 +27,7 @@ export const lodashOptions = (state: State): LodashOptions => state.defaults.lod
 export const nodeOptions = (state: State): NodeOptions => state.defaults.node
 export const packageJson = (state: State): PackageJson => state.pjson
 export const rootModules = (state: State): string => state.prefix.root
-export const targets = (state: State): BuildTargets => state.build.targets
+export const modules = (state: State): BuildModules => state.build.modules
 export const uglifyOptions = (state: State): MinifyOptions => state.defaults.uglify
 export const declaration = (state: State): boolean => !!state.build.compilerOptions.declaration
 export const errors = (state: State): { [key: string]: TypescriptErrorRecord } => state.build.errors

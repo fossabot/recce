@@ -1,7 +1,8 @@
 // import produce from 'immer'
+import webpack = require('webpack')
 import typescript = require('gulp-typescript')
-import { BuildTarget, State } from './types'
 import babel = require('gulp-babel')
+import gulpFilter = require('gulp-filter')
 import gulp = require('gulp')
 import lodashPlugin = require('lodash-webpack-plugin')
 import merge = require('merge2')
@@ -9,7 +10,7 @@ import nodeExternals = require('webpack-node-externals')
 import resolveFrom = require('resolve-from')
 import sourcemaps = require('gulp-sourcemaps')
 import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-import webpack = require('webpack')
+import { BuildModule, BuildModules, State } from './types'
 import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 import { logger } from '@escapace/logger'
 import { store } from './store'
@@ -17,8 +18,9 @@ import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
 import { FilterWebpackPlugin } from './filterWebpackPlugin'
 import { DoneHookWebpackPlugin } from './doneHookWebpackPlugin'
-
 import { dispatchError, dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
+import { compilerOptions as readCompilerOptions } from './utilities/compilerOptions'
+import { SET_BUILD_OPTIONS } from './actions'
 
 import {
   compilerOptions,
@@ -31,6 +33,7 @@ import {
   declaration,
   lodashId,
   lodashOptions,
+  modules,
   nodeOptions,
   nodeTarget,
   outputPathCjs,
@@ -39,7 +42,6 @@ import {
   outputPathUmd,
   packageName,
   rootModules,
-  targets,
   tsconfig,
   uglifyOptions,
   webpackEntries
@@ -55,26 +57,27 @@ import {
   includes,
   isEmpty,
   isNull,
+  isString,
   isUndefined,
   map,
   noop,
-  omit
+  omit,
+  some,
+  uniq
 } from 'lodash'
 
 export interface BuildResult {
-  target: BuildTarget
+  module: BuildModule
   assets: string[]
   errors: string[]
   hasErrors: boolean
 }
 
 export interface BuildProps {
-  target: BuildTarget
+  module: BuildModule
 }
 
 const babelOptions = (props: BuildProps) => {
-  const { target } = props
-
   const state = store.getState()
 
   return {
@@ -100,9 +103,9 @@ const babelOptions = (props: BuildProps) => {
           exclude: ['transform-async-to-generator', 'transform-regenerator'],
           modules: false,
           loose: true,
-          ignoreBrowserslistConfig: target === 'cjs',
+          ignoreBrowserslistConfig: props.module === 'cjs',
           targets:
-            target === 'cjs'
+            props.module === 'cjs'
               ? {
                   node: nodeTarget(state)
                 }
@@ -113,14 +116,14 @@ const babelOptions = (props: BuildProps) => {
   }
 }
 
-const gulpBabelOptions = () => omit(babelOptions({ target: 'esm' }), ['cacheDirectory'])
+const gulpBabelOptions = () => omit(babelOptions({ module: 'esm' }), ['cacheDirectory'])
 const webpackBabelOptions = babelOptions
 
-const typescriptOptions = (props: { target: BuildTarget }) => {
+const typescriptOptions = (props: { module: BuildModule }) => {
   const state = store.getState()
 
   return {
-    errorFormatter: dispatchError({ target: props.target }),
+    errorFormatter: dispatchError(props),
     compiler: resolveFrom(contextModules(state), 'typescript'),
     configFile: tsconfig(state),
     silent: true,
@@ -135,7 +138,7 @@ const gulpBuild = async (): Promise<BuildResult> => {
 
   return new Promise<BuildResult>(resolve => {
     const result: BuildResult = {
-      target: 'esm',
+      module: 'esm',
       assets: [],
       errors: [],
       hasErrors: false
@@ -182,10 +185,15 @@ const gulpBuild = async (): Promise<BuildResult> => {
         })
       )
 
+    const specFilter = gulpFilter(file => !/\.spec\.js$/.test(file.path))
+    const specTypesFilter = gulpFilter(file => !/\.spec\.d\.ts$/.test(file.path))
+
     merge(
       compact([
-        declaration(state) && stream.dts.pipe(gulp.dest(outputPathTypes(state))),
+        declaration(state) &&
+          stream.dts.pipe(specTypesFilter).pipe(gulp.dest(outputPathTypes(state))),
         stream.js
+          .pipe(specFilter)
           // tslint:disable-next-line no-any
           .pipe(babel(gulpBabelOptions() as any))
           .pipe(sourcemaps.write('.', { includeContent: true }))
@@ -207,9 +215,7 @@ const gulpBuild = async (): Promise<BuildResult> => {
   })
 }
 
-const webpackRules = (props: { target: 'cjs' | 'umd' }): webpack.Rule[] => {
-  const { target } = props
-
+const webpackRules = (props: { module: 'cjs' | 'umd' }): webpack.Rule[] => {
   const state = store.getState()
 
   return [
@@ -219,11 +225,11 @@ const webpackRules = (props: { target: 'cjs' | 'umd' }): webpack.Rule[] => {
       use: [
         {
           loader: resolveFrom(rootModules(state), 'babel-loader'),
-          options: webpackBabelOptions({ target })
+          options: webpackBabelOptions(props)
         },
         {
           loader: resolveFrom(rootModules(state), 'ts-loader'),
-          options: typescriptOptions({ target })
+          options: typescriptOptions(props)
         }
       ]
     },
@@ -233,30 +239,30 @@ const webpackRules = (props: { target: 'cjs' | 'umd' }): webpack.Rule[] => {
       use: [
         {
           loader: 'babel-loader',
-          options: webpackBabelOptions({ target })
+          options: webpackBabelOptions(props)
         }
       ]
     }
   ]
 }
 
-const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configuration => {
-  const { target } = props
+const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configuration => {
+  const { module } = props
   const state = store.getState()
 
   return {
-    name: target,
+    name: module,
     cache: false,
     context: context(state),
-    target: target === 'cjs' ? 'node' : 'web',
-    externals: target === 'cjs' ? [nodeExternals()] : undefined,
+    target: module === 'cjs' ? 'node' : 'web',
+    externals: module === 'cjs' ? [nodeExternals()] : undefined,
     mode: 'production',
     entry: webpackEntries(state),
     devtool: 'source-map',
     output: {
-      libraryTarget: target === 'cjs' ? 'commonjs2' : 'umd',
-      library: target === 'cjs' ? undefined : camelCase(packageName(state)),
-      path: target === 'cjs' ? outputPathCjs(state) : outputPathUmd(state),
+      libraryTarget: module === 'cjs' ? 'commonjs2' : 'umd',
+      library: module === 'cjs' ? undefined : camelCase(packageName(state)),
+      path: module === 'cjs' ? outputPathCjs(state) : outputPathUmd(state),
       filename: `[name].js`
     },
     module: {
@@ -293,17 +299,17 @@ const webpackConfiguration = (props: { target: 'cjs' | 'umd' }): webpack.Configu
       ],
       extensions: ['.ts', '.js', '.tsx', '.json'],
       modules: [contextModules(state)],
-      mainFields: target === 'umd' ? ['module', 'browser', 'main'] : ['module', 'main']
+      mainFields: module === 'umd' ? ['module', 'browser', 'main'] : ['module', 'main']
     },
     resolveLoader: {
       modules: [rootModules(state)]
     },
-    node: target === 'cjs' ? nodeOptions(state) : undefined
+    node: module === 'cjs' ? nodeOptions(state) : undefined
   }
 }
 
 const webpackBuild = async (props: {
-  target: 'cjs' | 'umd'
+  module: 'cjs' | 'umd'
   cb?: (result: BuildResult) => void
 }): Promise<{
   compiler: webpack.Compiler
@@ -313,7 +319,7 @@ const webpackBuild = async (props: {
   const configuration = webpackConfiguration(props)
   const compiler = webpack(configuration)
 
-  const { target, cb } = defaults(props, { cb: noop })
+  const { module, cb } = defaults(props, { cb: noop })
 
   const method = (handler: webpack.ICompiler.Handler) => {
     const state = store.getState()
@@ -340,7 +346,7 @@ const webpackBuild = async (props: {
       // tslint:disable-next-line no-any
       (err: null | Error & { details?: string }, stats: any) => {
         const result: BuildResult = {
-          target,
+          module,
           assets: [],
           errors: [],
           hasErrors: false
@@ -413,15 +419,15 @@ export const build = async () => {
   const state = store.getState()
 
   const results: BuildResult[] = await Promise.all(
-    map(targets(state), target => {
-      switch (target) {
+    map(modules(state), module => {
+      switch (module) {
         case 'esm': {
           return gulpBuild()
         }
         default: {
           return new Promise<BuildResult>(resolve =>
             webpackBuild({
-              target,
+              module,
               // tslint:disable-next-line no-unnecessary-callback-wrapper
               cb: result => resolve(result)
             })
@@ -446,12 +452,59 @@ export const watch = async () => {
   await clean()
 
   const state = store.getState()
-  const target = first(targets(state)) as 'cjs' | 'umd'
+  const module = first(modules(state)) as 'cjs' | 'umd'
 
   return webpackBuild({
-    target,
-    cb: () => {
-      logger.info('Should be last')
-    }
+    module
   })
+}
+
+export const parseFlags = async (flags: {
+  entry: string[]
+  clean: boolean
+  minimize: boolean
+  module: string[] | string
+  output: string | undefined
+  context: string | undefined
+}) => {
+  const entries: string[] = isUndefined(flags.entry) ? [] : uniq(compact(flags.entry))
+
+  let _modules: BuildModules
+
+  if (isString(flags.module)) {
+    _modules = [flags.module as BuildModule]
+  } else {
+    const hasEntry = !isEmpty(entries)
+    const defaultModules: BuildModules = hasEntry ? ['esm', 'cjs', 'umd'] : ['esm']
+
+    _modules = uniq(
+      filter(
+        isUndefined(flags.module) ? defaultModules : (flags.module as BuildModules),
+        t => t === 'cjs' || t === 'esm' || t === 'umd'
+      )
+    )
+
+    if (!hasEntry && some(_modules, t => t !== 'esm')) {
+      throw new Error('Specify at least one entry for CommonJS and UMD builds')
+    }
+  }
+
+  const outputPath = isUndefined(flags.output) ? 'lib' : flags.output
+  const _clean = isUndefined(flags.clean) ? true : flags.clean
+  const minimize = isUndefined(flags.minimize) ? true : flags.minimize
+
+  store.dispatch(
+    SET_BUILD_OPTIONS({
+      files: {},
+      errors: {},
+      clean: _clean,
+      compilerOptions: await readCompilerOptions(),
+      entries,
+      minimize,
+      outputPath,
+      modules: _modules
+    })
+  )
+
+  logger.log(store.getState().build)
 }

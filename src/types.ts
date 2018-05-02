@@ -16,7 +16,7 @@ export interface TypescriptError {
 }
 
 export interface TypescriptErrorRecord {
-  targets: BuildTarget[]
+  modules: BuildModule[]
   error: TypescriptError
   hash: string
 }
@@ -38,8 +38,8 @@ export interface ActionCreator<P> {
 
 export { AnyAction } from 'redux'
 
-export type BuildTarget = 'cjs' | 'umd' | 'esm'
-export type BuildTargets = BuildTarget[]
+export type BuildModule = 'cjs' | 'umd' | 'esm'
+export type BuildModules = BuildModule[]
 
 export interface FileSource {
   file: string
@@ -51,7 +51,7 @@ export interface BuildOptions {
   files: { [key: string]: string }
   compilerOptions: CompilerOptions
   entries: string[]
-  targets: BuildTargets
+  modules: BuildModules
   outputPath: string
   minimize: boolean
   clean: boolean
