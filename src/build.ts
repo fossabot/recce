@@ -505,6 +505,4 @@ export const parseFlags = async (flags: {
       modules: _modules
     })
   )
-
-  logger.log(store.getState().build)
 }
