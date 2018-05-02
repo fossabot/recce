@@ -12,7 +12,6 @@ import sourcemaps = require('gulp-sourcemaps')
 import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 import { BuildModule, BuildModules, State } from './types'
 import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-import { logger } from '@escapace/logger'
 import { store } from './store'
 import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
