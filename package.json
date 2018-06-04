@@ -89,7 +89,7 @@
     "validate-commit": "3.4.0"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": "10.3.0"
   },
   "files": [
     ".oclif.manifest.json",
