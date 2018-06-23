@@ -1,5 +1,4 @@
 import produce from 'immer'
-import { Selector, createSelector, createStructuredSelector } from 'reselect'
 import { Store, createStore } from 'redux'
 import { isUndefined, union } from 'lodash'
 import { INITIAL_STATE } from './constants'

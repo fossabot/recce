@@ -214,7 +214,7 @@ const gulpBuild = async (): Promise<BuildResult> => {
   })
 }
 
-const webpackRules = (props: { module: 'cjs' | 'umd' }): webpack.Rule[] => {
+const webpackRules = (props: { module: 'cjs' | 'umd' }): webpack.RuleSetRule[] => {
   const state = store.getState()
 
   return [
