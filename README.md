@@ -49,11 +49,8 @@ OPTIONS
 
 EXAMPLES
   $ recce build -c [directory] -m esm -e src/hello.ts
-
   $ recce build -c [directory] -m cjs -e src/hello.ts -e src/world.ts
-
   $ recce build -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts
-
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
@@ -74,7 +71,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v1.2.6/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.0.5/src/commands/help.ts)_
 
 ## `recce watch`
 
@@ -96,7 +93,6 @@ OPTIONS
 
 EXAMPLES
   $ recce watch -c [directory] -m umd -e src/hello.ts
-
   $ recce watch -c [directory] -m cjs -e src/hello.ts -e src/world.ts
 ```
 
