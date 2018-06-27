@@ -83,6 +83,7 @@ const babelOptions = (props: BuildProps) => {
     cacheDirectory: false,
     babelrc: false,
     plugins: compact([
+      resolveFrom(rootModules(state), 'babel-plugin-annotate-pure-calls'),
       resolveFrom(rootModules(state), '@babel/plugin-syntax-dynamic-import'),
       condLodash(state)
         ? [

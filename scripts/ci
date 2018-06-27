@@ -4,13 +4,11 @@
 #
 # @description entrypoint for ci/cd
 # @import github.com/escapace/stack-tools/release/npmTravis
-# @import manage/manage
 
 main ()
 {
     verbose true
     strict true
 
-    _ manage prepare-test-fixtures
     _ npmTravis
 }
