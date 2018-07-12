@@ -9,10 +9,10 @@
   },
   "bugs": "https://github.com/escapace/recce/issues",
   "dependencies": {
-    "@babel/code-frame": "7.0.0-beta.52",
-    "@babel/core": "7.0.0-beta.52",
-    "@babel/plugin-syntax-dynamic-import": "7.0.0-beta.52",
-    "@babel/preset-env": "7.0.0-beta.52",
+    "@babel/code-frame": "7.0.0-beta.53",
+    "@babel/core": "7.0.0-beta.53",
+    "@babel/plugin-syntax-dynamic-import": "7.0.0-beta.53",
+    "@babel/preset-env": "7.0.0-beta.53",
     "@escapace/logger": "0.0.5",
     "@oclif/command": "1.4.34",
     "@oclif/config": "1.6.33",
@@ -47,7 +47,7 @@
     "tslib": "1.9.3",
     "uglifyjs-webpack-plugin": "1.2.7",
     "v8-compile-cache": "2.0.0",
-    "webpack": "4.15.1",
+    "webpack": "4.16.0",
     "webpack-node-externals": "1.7.2"
   },
   "devDependencies": {
