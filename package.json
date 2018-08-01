@@ -1,6 +1,6 @@
 {
   "name": "recce",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "author": "escapace <opensource@escapace.com>",
   "description": "TypeScript library build tool",
   "license": "MPL-2.0",
@@ -93,14 +93,23 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [".oclif.manifest.json", "/bin", "/lib"],
+  "files": [
+    ".oclif.manifest.json",
+    "/bin",
+    "/lib"
+  ],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": ["TypeScript", "build"],
+  "keywords": [
+    "TypeScript",
+    "build"
+  ],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": ["@oclif/plugin-help"]
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -112,8 +121,14 @@
       "prettier --write --trailing-comma none --no-semi --single-quote",
       "git add"
     ],
-    "**/*.json": ["prettier --write --parser json", "git add"],
-    "**/*.md": ["prettier --parser markdown --print-width 80", "git add"]
+    "**/*.json": [
+      "prettier --write --parser json",
+      "git add"
+    ],
+    "**/*.md": [
+      "prettier --parser markdown --print-width 80",
+      "git add"
+    ]
   },
   "husky": {
     "hooks": {
@@ -123,11 +138,22 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": ["src/**/*.ts"],
-    "extension": [".ts", ".tsx"],
-    "exclude": ["test/**/*.test.ts"],
-    "require": ["ts-node/register"],
-    "reporter": ["text"],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "test/**/*.test.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text"
+    ],
     "sourceMap": true,
     "instrument": true
   },
