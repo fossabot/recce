@@ -190,8 +190,9 @@ const gulpBuild = async (): Promise<BuildResult> => {
 
     merge(
       compact([
-        declaration(state) &&
-          stream.dts.pipe(specTypesFilter).pipe(gulp.dest(outputPathTypes(state))),
+        declaration(state)
+          ? stream.dts.pipe(specTypesFilter).pipe(gulp.dest(outputPathTypes(state)))
+          : undefined,
         stream.js
           .pipe(specFilter)
           // tslint:disable-next-line no-any

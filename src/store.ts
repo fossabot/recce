@@ -26,31 +26,31 @@ export const store: Store<State> = createStore(
   (state: State | undefined, action: AnyAction) => {
     if (state !== undefined) {
       if (isType(action, SET_OCLIF_CONFIG)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.oclifConfig = action.payload
         })
       } else if (isType(action, SET_CONTEXT)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.context = action.payload
         })
       } else if (isType(action, SET_PACKAGE_JSON)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.pjson = action.payload
         })
       } else if (isType(action, SET_MODE)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.mode = action.payload
         })
       } else if (isType(action, SET_BUILD_OPTIONS)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.build = action.payload
         })
       } else if (isType(action, SET_PREFIX)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.prefix = action.payload
         })
       } else if (isType(action, ADD_TYPESCRIPT_ERROR)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           const errors = draft.build.errors
 
           if (isUndefined(errors[action.payload.hash])) {
@@ -63,15 +63,15 @@ export const store: Store<State> = createStore(
           }
         })
       } else if (isType(action, ADD_FILE_SOURCE)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.build.files[action.payload.file] = action.payload.source
         })
       } else if (isType(action, RESET_FILE_SOURCES)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.build.files = {}
         })
       } else if (isType(action, RESET_TYPESCRIPT_ERRORS)) {
-        return produce(state, (draft: State) => {
+        return produce(state, draft => {
           draft.build.errors = {}
         })
       }
