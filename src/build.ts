@@ -184,6 +184,7 @@ const gulpBuild = async (): Promise<BuildResult> => {
           }
         })
       )
+      .on('error', noop)
 
     const specFilter = gulpFilter(file => !/\.spec\.js$/.test(file.path))
     const specTypesFilter = gulpFilter(file => !/\.spec\.d\.ts$/.test(file.path))
