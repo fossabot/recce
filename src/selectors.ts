@@ -21,8 +21,7 @@ export const condClean = (state: State): boolean => state.build.clean
 export const condMinimize = (state: State): boolean => state.build.minimize
 export const context = (state: State): string => state.context
 export const contextModules = (state: State): string => state.prefix.context
-export const compilerOptions = (state: State): CompilerOptions =>
-  state.defaults.typescript.compilerOptions
+export const compilerOptions = (state: State): CompilerOptions => state.build.compilerOptions
 export const lodashOptions = (state: State): LodashOptions => state.defaults.lodash.options
 export const nodeOptions = (state: State): NodeOptions => state.defaults.node
 export const packageJson = (state: State): PackageJson => state.pjson
@@ -58,12 +57,21 @@ export const outputPathUmd = createSelector(outputPath, o => join(o, 'umd'))
 export const packageName = createSelector(packageJson, pj => pj.name)
 export const tsconfig = createSelector(context, c => join(c, 'tsconfig.json'))
 
-export const webpackEntries = createSelector(entries, context, (ents, ctx): {
-  [key: string]: string
-} => fromPairs(map(ents, ent => [parse(ent).name, `./${relative(ctx, resolve(ctx, ent))}`])))
+export const webpackEntries = createSelector(
+  entries,
+  context,
+  (
+    ents,
+    ctx
+  ): {
+    [key: string]: string
+  } => fromPairs(map(ents, ent => [parse(ent).name, `./${relative(ctx, resolve(ctx, ent))}`]))
+)
 
-export const condLodash = createSelector(combinedDependencies, _lodashId, (dep, lmn): boolean =>
-  some(lmn, l => dep[l])
+export const condLodash = createSelector(
+  combinedDependencies,
+  _lodashId,
+  (dep, lmn): boolean => some(lmn, l => dep[l])
 )
 
 // TODO: wrong types
@@ -71,24 +79,27 @@ export const lodashId = createSelector(combinedDependencies, _lodashId, (dep, lm
   filter(lmn, l => dep[l])
 )
 
-export const nodeTarget = createSelector(packageJson, (pjson): string => {
-  const node: string | undefined = get(pjson, 'engines.node')
+export const nodeTarget = createSelector(
+  packageJson,
+  (pjson): string => {
+    const node: string | undefined = get(pjson, 'engines.node')
 
-  if (isString(node)) {
-    if (semver.valid(node) !== null) {
-      return node
+    if (isString(node)) {
+      if (semver.valid(node) !== null) {
+        return node
+      }
+
+      const coerced = semver.coerce(node)
+
+      // tslint:disable-next-line strict-type-predicates
+      if (semver.validRange(node) !== null && coerced !== null) {
+        return coerced.version
+      }
     }
 
-    const coerced = semver.coerce(node)
-
-    // tslint:disable-next-line strict-type-predicates
-    if (semver.validRange(node) !== null && coerced !== null) {
-      return coerced.version
-    }
+    return `${semver.major(process.versions.node)}.0.0`
   }
-
-  return `${semver.major(process.versions.node)}.0.0`
-})
+)
 
 // export const entryName = createSelector(entries, n => parse(n).name)
 // export const relativeEntry = createSelector(entries, context, (e, c) => relative(c, resolve(c, e)))

@@ -27,7 +27,9 @@
     "gulp-babel": "8.0.0-beta.2",
     "gulp-filter": "5.1.0",
     "gulp-sourcemaps": "2.6.4",
+    "gulp-tap": "^1.0.1",
     "gulp-typescript": "5.0.0-alpha.3",
+    "gzip-size": "^5.0.0",
     "immer": "1.5.0",
     "lodash": "4.17.10",
     "lodash-webpack-plugin": "0.11.5",
@@ -36,6 +38,7 @@
     "node-object-hash": "1.4.1",
     "normalize-package-data": "2.4.0",
     "pkg-up": "2.0.0",
+    "pretty-bytes": "^5.1.0",
     "redux": "4.0.0",
     "reselect": "3.0.1",
     "resolve-from": "4.0.0",
@@ -61,12 +64,14 @@
     "@types/gulp-filter": "3.0.32",
     "@types/gulp-sourcemaps": "0.0.32",
     "@types/lodash": "4.14.116",
+    "@types/gzip-size": "^4.1.0",
     "@types/lodash-webpack-plugin": "0.11.3",
     "@types/merge2": "1.1.4",
     "@types/micromatch": "3.1.0",
     "@types/mocha": "5.2.5",
     "@types/node": "10.5.6",
     "@types/normalize-package-data": "2.4.0",
+    "@types/pretty-bytes": "^5.1.0",
     "@types/rimraf": "2.0.2",
     "@types/semver": "5.5.0",
     "@types/uglifyjs-webpack-plugin": "1.1.0",
@@ -93,23 +98,14 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [
-    ".oclif.manifest.json",
-    "/bin",
-    "/lib"
-  ],
+  "files": [".oclif.manifest.json", "/bin", "/lib"],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": [
-    "TypeScript",
-    "build"
-  ],
+  "keywords": ["TypeScript", "build"],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
+    "plugins": ["@oclif/plugin-help"]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -121,14 +117,8 @@
       "prettier --write --trailing-comma none --no-semi --single-quote",
       "git add"
     ],
-    "**/*.json": [
-      "prettier --write --parser json",
-      "git add"
-    ],
-    "**/*.md": [
-      "prettier --parser markdown --print-width 80",
-      "git add"
-    ]
+    "**/*.json": ["prettier --write --parser json", "git add"],
+    "**/*.md": ["prettier --parser markdown --print-width 80", "git add"]
   },
   "husky": {
     "hooks": {
@@ -138,22 +128,11 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "test/**/*.test.ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text"
-    ],
+    "include": ["src/**/*.ts"],
+    "extension": [".ts", ".tsx"],
+    "exclude": ["test/**/*.test.ts"],
+    "require": ["ts-node/register"],
+    "reporter": ["text"],
     "sourceMap": true,
     "instrument": true
   },

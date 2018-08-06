@@ -1,18 +1,20 @@
 // import produce from 'immer'
+import { store } from './store'
 import webpack = require('webpack')
-import typescript = require('gulp-typescript')
 import babel = require('gulp-babel')
 import gulpFilter = require('gulp-filter')
 import gulp = require('gulp')
+import gulpTap = require('gulp-tap')
 import lodashPlugin = require('lodash-webpack-plugin')
 import merge = require('merge2')
 import nodeExternals = require('webpack-node-externals')
 import resolveFrom = require('resolve-from')
 import sourcemaps = require('gulp-sourcemaps')
+// import DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 import { BuildModule, BuildModules, State } from './types'
 import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-import { store } from './store'
+import typescript = require('gulp-typescript')
 import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
 import { FilterWebpackPlugin } from './filterWebpackPlugin'
@@ -20,6 +22,12 @@ import { DoneHookWebpackPlugin } from './doneHookWebpackPlugin'
 import { dispatchError, dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
 import { compilerOptions as readCompilerOptions } from './utilities/compilerOptions'
 import { SET_BUILD_OPTIONS } from './actions'
+import { extname, join, relative } from 'path'
+import { statAsync } from './utilities/statAsync'
+import { readFileAsync } from './utilities/readFileAsync'
+import gzipSize = require('gzip-size')
+import prettyBytes = require('pretty-bytes')
+import { logger } from '@escapace/logger'
 
 import {
   compilerOptions,
@@ -62,6 +70,7 @@ import {
   noop,
   omit,
   some,
+  toUpper,
   uniq
 } from 'lodash'
 
@@ -200,6 +209,13 @@ const gulpBuild = async (): Promise<BuildResult> => {
           .pipe(babel(gulpBabelOptions() as any))
           .pipe(sourcemaps.write('.', { includeContent: true }))
           .pipe(gulp.dest(outputPathEsm(state)))
+          .pipe(
+            gulpTap(file => {
+              if (extname(file.path) === '.js') {
+                result.assets.push(file.path)
+              }
+            })
+          )
       ])
     )
       .on('finish', () => {
@@ -275,6 +291,12 @@ const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configu
       minimize: false
     },
     plugins: compact([
+      // new DuplicatePackageCheckerPlugin({
+      //   verbose: true,
+      //   strict: true,
+      //   showHelp: false,
+      //   emitError: true
+      // }),
       condWatch(state) ? new DoneHookWebpackPlugin() : undefined,
       // new webpack.NoEmitOnErrorsPlugin(),
       condLodash(state) ? new lodashPlugin(lodashOptions(state)) : undefined,
@@ -383,7 +405,10 @@ const webpackBuild = async (props: {
 
           cb(result)
         } else {
-          result.assets = map(info.assets, asset => asset.name)
+          result.assets = filter(
+            map(info.assets, asset => join(info.outputPath, asset.name)),
+            p => !/\.js\.map/.test(p)
+          )
 
           resolve({
             close: isUndefined(watching) ? noop : watching.close,
@@ -431,7 +456,9 @@ export const build = async () => {
             webpackBuild({
               module,
               // tslint:disable-next-line no-unnecessary-callback-wrapper
-              cb: result => resolve(result)
+              cb: result => {
+                resolve(result)
+              }
             })
           )
         }
@@ -446,6 +473,26 @@ export const build = async () => {
     reportErrors()
 
     throw new Error('Recce could not finish the build')
+  } else {
+    const report: string[] = []
+
+    for (const result of results) {
+      let size = 0
+      let buf = Buffer.alloc(0)
+
+      for (const p of result.assets) {
+        const asset = await readFileAsync(p)
+        const tmpBuf = Buffer.concat([asset, buf])
+        buf = tmpBuf
+        size += asset.length
+      }
+
+      const gSize = await gzipSize(buf)
+
+      report.push(`${toUpper(result.module)}: ${prettyBytes(size)} (${prettyBytes(gSize)} gzipped)`)
+    }
+
+    logger.log(report.join('\n'))
   }
 }
 

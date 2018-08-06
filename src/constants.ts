@@ -97,9 +97,6 @@ export const INITIAL_STATE: Partial<State> = {
       options: LODASH_OPTIONS
     },
     uglify: UGLIFY_OPTIONS,
-    node: WEBPACK_NODE,
-    typescript: {
-      compilerOptions: TS_COMPILER_OPTIONS
-    }
+    node: WEBPACK_NODE
   }
 }

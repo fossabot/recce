@@ -78,9 +78,6 @@ export interface State {
       id: string[]
       options: LodashOptions
     }
-    typescript: {
-      compilerOptions: CompilerOptions
-    }
   }
 }
 

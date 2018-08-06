@@ -14,7 +14,7 @@ main ()
 
     for directory in "${MANAGE_REPOSITORY}/test/fixtures"/*
     do
-        if [ -d "${directory}" ] && [ -f "${directory}/package.json" ]
+        if [ -d "${directory}" ] && [ -f "${directory}/packge.json" ] && [[ "${directory}" != no-* ]]
         then
             cd "${directory}"
             _ info "Installing dependencies for '$(_ relativePath  "${directory}" "${MANAGE_REPOSITORY}")'"
