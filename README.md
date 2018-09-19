@@ -5,37 +5,33 @@
 [![license](https://img.shields.io/badge/license-Mozilla%20Public%20License%20Version%202.0-blue.svg)]()
 
 <!-- toc -->
-
-- [Recce](#recce)
-- [Usage](#usage)
-- [Commands](#commands)
-  <!-- tocstop -->
+* [Recce](#recce)
+* [Usage](#usage)
+* [Commands](#commands)
+<!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/1.6.2 linux-x64 node-v10.7.0
+recce/1.6.3 linux-x64 node-v10.7.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`recce build`](#recce-build)
-- [`recce help [COMMAND]`](#recce-help-command)
-- [`recce watch`](#recce-watch)
+* [`recce build`](#recce-build)
+* [`recce help [COMMAND]`](#recce-help-command)
+* [`recce watch`](#recce-watch)
 
 ## `recce build`
 
@@ -62,7 +58,7 @@ EXAMPLES
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
-_See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v1.6.2/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v1.6.3/src/commands/build.ts)_
 
 ## `recce help [COMMAND]`
 
@@ -104,6 +100,5 @@ EXAMPLES
   $ recce watch -c [directory] -m cjs -e src/hello.ts -e src/world.ts
 ```
 
-_See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v1.6.2/src/commands/watch.ts)_
-
+_See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v1.6.3/src/commands/watch.ts)_
 <!-- commandsstop -->
