@@ -27,7 +27,7 @@ export const nodeOptions = (state: State): NodeOptions => state.defaults.node
 export const packageJson = (state: State): PackageJson => state.pjson
 export const rootModules = (state: State): string => state.prefix.root
 export const modules = (state: State): BuildModules => state.build.modules
-export const uglifyOptions = (state: State): MinifyOptions => state.defaults.uglify
+export const minifyOptions = (state: State): MinifyOptions => state.defaults.minify
 export const declaration = (state: State): boolean => !!state.build.compilerOptions.declaration
 export const errors = (state: State): { [key: string]: TypescriptErrorRecord } => state.build.errors
 export const files = (state: State) => state.build.files

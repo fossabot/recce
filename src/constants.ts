@@ -54,26 +54,27 @@ const LODASH_OPTIONS: LodashOptions = {
   paths: true
 }
 
-const UGLIFY_OPTIONS: MinifyOptions = {
-  safari10: true,
+const MINIFY_OPTIONS: MinifyOptions = {
+  ecma: undefined,
+  warnings: false,
+  parse: {},
   compress: {
-    // turn off flags with small gains to speed up minification
-    arrows: false,
-    collapse_vars: false, // 0.3kb
-    comparisons: false,
-    computed_props: false,
-    hoist_funs: false,
-    hoist_props: false,
-    hoist_vars: false,
-    inline: false,
-    loops: false,
-    negate_iife: false,
-    properties: false,
-    reduce_funcs: false,
-    reduce_vars: false,
-    switches: false,
-    toplevel: false,
-    typeofs: false,
+    arrows: true,
+    collapse_vars: true,
+    comparisons: true,
+    computed_props: true,
+    hoist_funs: true,
+    hoist_props: true,
+    hoist_vars: true,
+    inline: true,
+    loops: true,
+    negate_iife: true,
+    properties: true,
+    reduce_funcs: true,
+    reduce_vars: true,
+    switches: true,
+    toplevel: true,
+    typeofs: true,
 
     // a few flags with noticable gains/speed ratio
     // numbers based on out of the box vendor bundle
@@ -87,7 +88,15 @@ const UGLIFY_OPTIONS: MinifyOptions = {
     dead_code: true,
     evaluate: true
   },
-  mangle: true
+  mangle: true,
+  module: false,
+  output: null,
+  toplevel: false,
+  nameCache: null,
+  ie8: false,
+  keep_classnames: undefined,
+  keep_fnames: false,
+  safari10: true
 }
 
 export const INITIAL_STATE: Partial<State> = {
@@ -96,7 +105,8 @@ export const INITIAL_STATE: Partial<State> = {
       id: ['lodash-es', 'lodash', 'lodash-fp'],
       options: LODASH_OPTIONS
     },
-    uglify: UGLIFY_OPTIONS,
-    node: WEBPACK_NODE
+    minify: MINIFY_OPTIONS,
+    node: WEBPACK_NODE,
+    compilerOptions: TS_COMPILER_OPTIONS
   }
 }

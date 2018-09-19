@@ -48,7 +48,6 @@
     "tsconfig": "7.0.0",
     "tsconfig-paths-webpack-plugin": "3.2.0",
     "tslib": "1.9.3",
-    "uglifyjs-webpack-plugin": "1.3.0",
     "v8-compile-cache": "2.0.2",
     "webpack": "4.18.0",
     "webpack-node-externals": "1.7.2"
@@ -63,8 +62,8 @@
     "@types/gulp-babel": "6.1.29",
     "@types/gulp-filter": "3.0.32",
     "@types/gulp-sourcemaps": "0.0.32",
-    "@types/lodash": "4.14.116",
     "@types/gzip-size": "4.1.0",
+    "@types/lodash": "4.14.116",
     "@types/lodash-webpack-plugin": "0.11.3",
     "@types/merge2": "1.1.4",
     "@types/micromatch": "3.1.0",
@@ -74,7 +73,6 @@
     "@types/pretty-bytes": "5.1.0",
     "@types/rimraf": "2.0.2",
     "@types/semver": "5.5.0",
-    "@types/uglifyjs-webpack-plugin": "1.1.0",
     "@types/webpack": "4.4.11",
     "@types/webpack-node-externals": "1.6.3",
     "chai": "4.1.2",
@@ -86,6 +84,7 @@
     "prettier": "1.14.2",
     "rxjs": "6.3.2",
     "rxjs-compat": "6.3.2",
+    "terser-webpack-plugin": "^1.1.0",
     "ts-node": "7.0.1",
     "tslint": "5.11.0",
     "tslint-config-escapace": "1.3.0",
@@ -98,42 +97,25 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [
-    ".oclif.manifest.json",
-    "/bin",
-    "/lib"
-  ],
+  "files": [".oclif.manifest.json", "/bin", "/lib"],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": [
-    "TypeScript",
-    "build"
-  ],
+  "keywords": ["TypeScript", "build"],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
+    "plugins": ["@oclif/plugin-help"]
   },
   "repository": "escapace/recce",
   "lint-staged": {
     "{src,test}/**/*.ts": [
-      "prettier --write --parser typescript --trailing-comma none --no-semi --single-quote",
+      "tslint --exclude 'src/types/**/*.ts' --project tsconfig.json --fix",
+      "prettier --write",
       "git add"
     ],
-    "{src,test}/**/*.js": [
-      "prettier --write --trailing-comma none --no-semi --single-quote",
-      "git add"
-    ],
-    "**/*.json": [
-      "prettier --write --parser json",
-      "git add"
-    ],
-    "**/*.md": [
-      "prettier --parser markdown --print-width 80",
-      "git add"
-    ]
+    "{src,test}/**/*.js": ["prettier --write", "git add"],
+    "**/*.json": ["prettier --write", "git add"],
+    "**/*.md": ["prettier --write", "git add"]
   },
   "husky": {
     "hooks": {
@@ -143,22 +125,11 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "test/**/*.test.ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text"
-    ],
+    "include": ["src/**/*.ts"],
+    "extension": [".ts", ".tsx"],
+    "exclude": ["test/**/*.test.ts"],
+    "require": ["ts-node/register"],
+    "reporter": ["text"],
     "sourceMap": true,
     "instrument": true
   },

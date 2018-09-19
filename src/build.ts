@@ -11,8 +11,8 @@ import nodeExternals = require('webpack-node-externals')
 import resolveFrom = require('resolve-from')
 import sourcemaps = require('gulp-sourcemaps')
 // import DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
-import UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-import { BuildModule, BuildModules, State } from './types'
+import TerserPlugin = require('terser-webpack-plugin')
+import { BuildModule, BuildModules } from './types'
 import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 import typescript = require('gulp-typescript')
 import { clean } from './utilities/clean'
@@ -22,8 +22,7 @@ import { DoneHookWebpackPlugin } from './doneHookWebpackPlugin'
 import { dispatchError, dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
 import { compilerOptions as readCompilerOptions } from './utilities/compilerOptions'
 import { SET_BUILD_OPTIONS } from './actions'
-import { extname, join, relative } from 'path'
-import { statAsync } from './utilities/statAsync'
+import { extname, join } from 'path'
 import { readFileAsync } from './utilities/readFileAsync'
 import gzipSize = require('gzip-size')
 import prettyBytes = require('pretty-bytes')
@@ -40,6 +39,7 @@ import {
   declaration,
   lodashId,
   lodashOptions,
+  minifyOptions,
   modules,
   nodeOptions,
   nodeTarget,
@@ -50,7 +50,6 @@ import {
   packageName,
   rootModules,
   tsconfig,
-  uglifyOptions,
   webpackEntries
 } from './selectors'
 
@@ -273,7 +272,14 @@ const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configu
     cache: false,
     context: context(state),
     target: module === 'cjs' ? 'node' : 'web',
-    externals: module === 'cjs' ? [nodeExternals()] : undefined,
+    externals:
+      module === 'cjs'
+        ? [
+            nodeExternals({
+              whitelist: ['lodash-es']
+            })
+          ]
+        : undefined,
     mode: 'production',
     entry: webpackEntries(state),
     devtool: 'source-map',
@@ -301,15 +307,15 @@ const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configu
       // new webpack.NoEmitOnErrorsPlugin(),
       condLodash(state) ? new lodashPlugin(lodashOptions(state)) : undefined,
       condMinimize(state)
-        ? new UglifyJsPlugin({
-            uglifyOptions: uglifyOptions(state),
+        ? new TerserPlugin({
+            terserOptions: minifyOptions(state),
             sourceMap: true,
-            cache: true,
+            cache: false,
             parallel: true
           })
         : undefined,
       new FilterWebpackPlugin({
-        patterns: ['**/*.d.ts']
+        patterns: ['*.d.ts']
       })
       // new webpack.BannerPlugin(banner)
     ]),
@@ -472,6 +478,8 @@ export const build = async () => {
     await dispatchFilesFromErrors()
     reportErrors()
 
+    // TODO: non-ts types of errors
+    // fail.forEach(console.log)
     throw new Error('Recce could not finish the build')
   } else {
     const report: string[] = []

@@ -3,7 +3,7 @@ import { IConfig as OclifConfig } from '@oclif/config'
 import { Package } from 'normalize-package-data'
 import { Node as NodeOptions } from 'webpack'
 import { Options as LodashOptions } from 'lodash-webpack-plugin'
-import { MinifyOptions } from 'uglifyjs-webpack-plugin'
+import { MinifyOptions } from 'terser-webpack-plugin'
 
 export interface TypescriptError {
   code: number
@@ -73,11 +73,12 @@ export interface State {
   build: BuildOptions
   defaults: {
     node: NodeOptions
-    uglify: MinifyOptions
+    minify: MinifyOptions
     lodash: {
       id: string[]
       options: LodashOptions
     }
+    compilerOptions: CompilerOptions
   }
 }
 
@@ -90,6 +91,6 @@ export interface PackageJson extends Package {
   browserlist: string[]
 }
 
-export { MinifyOptions } from 'uglifyjs-webpack-plugin'
+export { MinifyOptions } from 'terser-webpack-plugin'
 export { Node as NodeOptions } from 'webpack'
 export { Options as LodashOptions } from 'lodash-webpack-plugin'

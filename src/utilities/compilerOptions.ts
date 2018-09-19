@@ -1,5 +1,5 @@
 import { CompilerOptions } from '../types'
-import { isUndefined } from 'lodash'
+import { defaults, isUndefined } from 'lodash'
 import { readFileAsync } from './readFileAsync'
 import { store } from '../store'
 import { tsconfig } from '../selectors'
@@ -17,5 +17,8 @@ export const compilerOptions = async (): Promise<CompilerOptions> => {
     filename
   )
 
-  return isUndefined(json.compilerOptions) ? {} : json.compilerOptions
+  return defaults(
+    isUndefined(json.compilerOptions) ? {} : json.compilerOptions,
+    state.defaults.compilerOptions
+  )
 }

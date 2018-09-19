@@ -6,7 +6,7 @@ import {
   RESET_FILE_SOURCES,
   RESET_TYPESCRIPT_ERRORS
 } from './actions'
-import { BuildModule, FileSource, State, TypescriptError } from './types'
+import { BuildModule, FileSource, TypescriptError } from './types'
 import { EOL } from 'os'
 // tslint:disable-next-line no-submodule-imports
 import { TypeScriptError } from 'gulp-typescript/release/reporter'

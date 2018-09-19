@@ -21,7 +21,7 @@ export class FilterWebpackPlugin {
     compiler.hooks.emit.tapAsync('RecceFilterWebpackPlugin', (compilation, callback) => {
       if (this.options.patterns.length > 0) {
         const files = keys(compilation.assets)
-        const matchedFiles = mm(files, this.options.patterns)
+        const matchedFiles = mm(files, this.options.patterns, { basename: true })
 
         compilation.assets = filter(compilation.assets, matchedFiles)
       }
