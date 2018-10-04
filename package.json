@@ -78,7 +78,7 @@
     "@types/webpack-node-externals": "1.6.3",
     "chai": "4.2.0",
     "codecov": "3.1.0",
-    "husky": "0.15.0-rc.13",
+    "husky": "1.1.0",
     "lint-staged": "7.3.0",
     "mocha": "5.2.0",
     "nyc": "13.0.1",
