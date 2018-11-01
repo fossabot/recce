@@ -3,8 +3,7 @@
 # vim: set ft=sh:
 #
 # @description release script
-# @import github.com/escapace/stack-tools/release/npmCommit
-# @import lang/required
+# @import github.com/escapace/stack-tools release/npmCommit
 
 main ()
 {
