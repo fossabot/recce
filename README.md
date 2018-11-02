@@ -18,7 +18,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/1.6.3 linux-x64 node-v10.7.0
+recce/1.6.4 darwin-x64 node-v10.10.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
@@ -58,7 +58,7 @@ EXAMPLES
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
-_See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v1.6.3/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v1.6.4/src/commands/build.ts)_
 
 ## `recce help [COMMAND]`
 
@@ -75,7 +75,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.1/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.3/src/commands/help.ts)_
 
 ## `recce watch`
 
@@ -100,5 +100,5 @@ EXAMPLES
   $ recce watch -c [directory] -m cjs -e src/hello.ts -e src/world.ts
 ```
 
-_See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v1.6.3/src/commands/watch.ts)_
+_See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v1.6.4/src/commands/watch.ts)_
 <!-- commandsstop -->
