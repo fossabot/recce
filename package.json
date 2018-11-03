@@ -14,7 +14,7 @@
     "@babel/core": "7.1.2",
     "@babel/plugin-syntax-dynamic-import": "7.0.0",
     "@babel/preset-env": "7.1.0",
-    "@escapace/logger": "0.1.0",
+    "@escapace/logger": "0.1.1",
     "@oclif/command": "1.5.4",
     "@oclif/config": "1.8.8",
     "@oclif/errors": "1.2.2",
@@ -97,23 +97,14 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [
-    ".oclif.manifest.json",
-    "/bin",
-    "/lib"
-  ],
+  "files": [".oclif.manifest.json", "/bin", "/lib"],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": [
-    "TypeScript",
-    "build"
-  ],
+  "keywords": ["TypeScript", "build"],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
+    "plugins": ["@oclif/plugin-help"]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -122,18 +113,9 @@
       "prettier --write",
       "git add"
     ],
-    "{src,test}/**/*.js": [
-      "prettier --write",
-      "git add"
-    ],
-    "**/*.json": [
-      "prettier --write",
-      "git add"
-    ],
-    "**/*.md": [
-      "prettier --write",
-      "git add"
-    ]
+    "{src,test}/**/*.js": ["prettier --write", "git add"],
+    "**/*.json": ["prettier --write", "git add"],
+    "**/*.md": ["prettier --write", "git add"]
   },
   "husky": {
     "hooks": {
@@ -143,22 +125,11 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "test/**/*.test.ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text"
-    ],
+    "include": ["src/**/*.ts"],
+    "extension": [".ts", ".tsx"],
+    "exclude": ["test/**/*.test.ts"],
+    "require": ["ts-node/register"],
+    "reporter": ["text"],
     "sourceMap": true,
     "instrument": true
   },
