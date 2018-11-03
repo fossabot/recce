@@ -18,7 +18,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/1.6.6 darwin-x64 node-v10.10.0
+recce/1.6.7 darwin-x64 node-v11.1.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
@@ -58,7 +58,7 @@ EXAMPLES
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
-_See code: [src/commands/build.ts](https://github.com/escapace/recce/blob/v1.6.6/src/commands/build.ts)_
+_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v1.6.7/lib/commands/build.js)_
 
 ## `recce help [COMMAND]`
 
@@ -100,5 +100,5 @@ EXAMPLES
   $ recce watch -c [directory] -m cjs -e src/hello.ts -e src/world.ts
 ```
 
-_See code: [src/commands/watch.ts](https://github.com/escapace/recce/blob/v1.6.6/src/commands/watch.ts)_
+_See code: [lib/commands/watch.js](https://github.com/escapace/recce/blob/v1.6.7/lib/commands/watch.js)_
 <!-- commandsstop -->
