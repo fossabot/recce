@@ -1,6 +1,6 @@
 {
   "name": "recce",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "author": "escapace <opensource@escapace.com>",
   "description": "TypeScript library build tool",
   "license": "MPL-2.0",
