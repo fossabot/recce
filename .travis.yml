@@ -16,7 +16,7 @@ branches:
   only:
   - master
   - next
-  - "/^renovate/.*$/"
+  - "/^renovate.*$/"
   - "/^new-.*$/"
   - "/^feat-.*$/"
   - "/^add-.*$/"
@@ -31,8 +31,12 @@ branches:
   - "/^performance-.*$/"
   - "/^test-.*$/"
   - "/^tests-.*$/"
-  - "/^v?\\d+\\.\\d+\\.\\d+$/"
-  - "/^\\d+\\.\\d+\\.\\d+$/"
+  - "/^chore-.*$/"
+  - "/^docs-.*$/"
+  - "/^style-.*$/"
+  - "/^refactor-.*$/"
+  - "/^v?\\d+\\.\\d+\\.\\d+.*$/"
+  - "/^\\d+\\.\\d+\\.\\d+.*$/"
 cache:
   directories:
   - "$HOME/.npm"
