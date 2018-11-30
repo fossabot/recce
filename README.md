@@ -18,7 +18,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/1.7.1 darwin-x64 node-v11.1.0
+recce/1.8.0 darwin-x64 node-v11.1.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
