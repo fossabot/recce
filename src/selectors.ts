@@ -14,6 +14,8 @@ import {
   TypescriptErrorRecord
 } from './types'
 
+export const tsconfig = (state: State) => state.tsconfig
+export const rootDir = (state: State) => state.build.rootDir
 export const _entries = (state: State): string[] => state.build.entries
 export const _lodashId = (state: State): string[] => state.defaults.lodash.id
 export const _outputPath = (state: State): string => state.build.outputPath
@@ -35,37 +37,110 @@ export const mode = (state: State) => state.mode
 
 // Derivatives
 
-export const condWatch = createSelector(mode, m => m === 'watch')
-export const condBuild = createSelector(mode, m => m === 'build')
-
-export const dependencies = createSelector(packageJson, pj => pj.dependencies)
-export const devDependencies = createSelector(packageJson, pj => pj.dependencies)
-export const entries = createSelector(_entries, context, (ents, ctx) =>
-  map(ents, ent => resolve(ctx, ent))
+export const condWatch = createSelector(
+  mode,
+  m => m === 'watch'
 )
-export const combinedDependencies = createSelector(devDependencies, dependencies, (dev, dep) =>
-  assign({}, dev, dep)
+export const condBuild = createSelector(
+  mode,
+  m => m === 'build'
 )
 
-export const outputFilename = createSelector(context, _outputPath, resolve)
-export const outputPath = createSelector(context, _outputPath, resolve)
-export const outputPathCjs = createSelector(outputPath, o => join(o, 'cjs'))
-export const outputPathEsm = createSelector(outputPath, o => join(o, 'esm'))
-export const outputPathTypes = createSelector(outputPath, o => join(o, 'types'))
-export const outputPathUmd = createSelector(outputPath, o => join(o, 'umd'))
+export const dependencies = createSelector(
+  packageJson,
+  pj => pj.dependencies
+)
+export const devDependencies = createSelector(
+  packageJson,
+  pj => pj.dependencies
+)
+export const entries = createSelector(
+  _entries,
+  context,
+  (ents, ctx) => map(ents, ent => resolve(ctx, ent))
+)
+export const combinedDependencies = createSelector(
+  devDependencies,
+  dependencies,
+  (dev, dep) => assign({}, dev, dep)
+)
 
-export const packageName = createSelector(packageJson, pj => pj.name)
-export const tsconfig = createSelector(context, c => join(c, 'tsconfig.json'))
+export const outputFilename = createSelector(
+  context,
+  _outputPath,
+  resolve
+)
+export const outputPath = createSelector(
+  context,
+  _outputPath,
+  resolve
+)
+export const outputPathCjs = createSelector(
+  outputPath,
+  o => join(o, 'cjs')
+)
+export const outputPathEsm = createSelector(
+  outputPath,
+  o => join(o, 'esm')
+)
+export const outputPathTypes = createSelector(
+  outputPath,
+  o => join(o, 'types')
+)
+export const outputPathUmd = createSelector(
+  outputPath,
+  o => join(o, 'umd')
+)
+
+export const packageName = createSelector(
+  packageJson,
+  pj => pj.name
+)
+
+// const reverseString = (str: string): string => {
+//   if (str === '') {
+//     return ''
+//   } else {
+//     return reverseString(str.substr(1)) + str.charAt(0)
+//   }
+// }
+//
+// const commonSuffix = (array: string[]): string => {
+//   const strings = array.map(reverseString)
+//
+//   const first = strings[0]
+//   let commonLength = first.length
+//
+//   for (let i = 1; i < strings.length; ++i) {
+//     for (let j = 0; j < commonLength; ++j) {
+//       if (strings[i].charAt(j) !== first.charAt(j)) {
+//         commonLength = j
+//         break
+//       }
+//     }
+//   }
+//
+//   return first.slice(0, commonLength)
+// }
 
 export const webpackEntries = createSelector(
   entries,
+  rootDir,
+  outputPathEsm,
   context,
-  (
-    ents,
-    ctx
-  ): {
-    [key: string]: string
-  } => fromPairs(map(ents, ent => [parse(ent).name, `./${relative(ctx, resolve(ctx, ent))}`]))
+  (ents, root, ope, ctxx): { [key: string]: string } =>
+    fromPairs(
+      map(ents, ent => [
+        parse(ent).name,
+        `./${relative(
+          ctxx,
+          resolve(
+            ope,
+            relative(root as string, resolve(root as string, ent)).replace(/\.ts$/, '.js')
+          )
+        )}`
+      ])
+    )
 )
 
 export const condLodash = createSelector(
@@ -75,8 +150,10 @@ export const condLodash = createSelector(
 )
 
 // TODO: wrong types
-export const lodashId = createSelector(combinedDependencies, _lodashId, (dep, lmn) =>
-  filter(lmn, l => dep[l])
+export const lodashId = createSelector(
+  combinedDependencies,
+  _lodashId,
+  (dep, lmn) => filter(lmn, l => dep[l])
 )
 
 export const nodeTarget = createSelector(

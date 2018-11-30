@@ -47,6 +47,7 @@ export interface FileSource {
 }
 
 export interface BuildOptions {
+  rootDir?: string
   errors: { [key: string]: TypescriptErrorRecord }
   files: { [key: string]: string }
   compilerOptions: CompilerOptions
@@ -68,6 +69,7 @@ export interface State {
   prefix: Prefix
   mode: Mode
   context: string
+  tsconfig: string
   pjson: PackageJson
   oclifConfig: OclifConfig
   build: BuildOptions

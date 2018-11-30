@@ -10,8 +10,8 @@ export default class Build extends Command {
   public static description = 'build TypeScript library'
 
   public static examples = [
-    '$ recce build -c [directory] -m esm -e src/hello.ts',
-    '$ recce build -c [directory] -m cjs -e src/hello.ts -e src/world.ts',
+    '$ recce build -p [directory] -m esm -e src/hello.ts',
+    '$ recce build -p [directory] -m cjs -e src/hello.ts -e src/world.ts',
     '$ recce build -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts',
     '$ recce build --no-clean --no-minimize -m umd -e src/hello.ts'
   ]

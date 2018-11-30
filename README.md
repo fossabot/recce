@@ -31,7 +31,6 @@ USAGE
 <!-- commands -->
 * [`recce build`](#recce-build)
 * [`recce help [COMMAND]`](#recce-help-command)
-* [`recce watch`](#recce-watch)
 
 ## `recce build`
 
@@ -42,23 +41,21 @@ USAGE
   $ recce build
 
 OPTIONS
-  -c, --context=context     project directory
   -e, --entry=entry         project entry point
   -h, --help                show CLI help
   -m, --module=cjs|umd|esm  module code generation
   -o, --output=output       [default: lib] output directory path
+  -p, --project=project     path to 'tsconfig.json', or to a folder with it
   -q, --quiet               don't output anything
   --[no-]clean              [default: true] clean output directory
   --[no-]minimize           [default: true] minimize javascript
 
 EXAMPLES
-  $ recce build -c [directory] -m esm -e src/hello.ts
-  $ recce build -c [directory] -m cjs -e src/hello.ts -e src/world.ts
+  $ recce build -p [directory] -m esm -e src/hello.ts
+  $ recce build -p [directory] -m cjs -e src/hello.ts -e src/world.ts
   $ recce build -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
-
-_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v1.7.1/lib/commands/build.js)_
 
 ## `recce help [COMMAND]`
 
@@ -76,29 +73,4 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.4/src/commands/help.ts)_
-
-## `recce watch`
-
-watch for changes in files and perform the build again
-
-```
-USAGE
-  $ recce watch
-
-OPTIONS
-  -c, --context=context  project directory
-  -e, --entry=entry      project entry point
-  -h, --help             show CLI help
-  -m, --module=cjs|umd   (required) module code generation
-  -o, --output=output    [default: lib] output directory path
-  -q, --quiet            don't output anything
-  --[no-]clean           [default: true] clean output directory
-  --[no-]minimize        [default: true] minimize javascript
-
-EXAMPLES
-  $ recce watch -c [directory] -m umd -e src/hello.ts
-  $ recce watch -c [directory] -m cjs -e src/hello.ts -e src/world.ts
-```
-
-_See code: [lib/commands/watch.js](https://github.com/escapace/recce/blob/v1.7.1/lib/commands/watch.js)_
 <!-- commandsstop -->

@@ -1,6 +1,8 @@
 import { CompilerOptions, LodashOptions, MinifyOptions, NodeOptions, State } from './types'
 import { flags } from '@oclif/command'
 
+import { DeepPartial } from 'redux'
+
 export const commandFlags = {
   entry: flags.string({
     char: 'e',
@@ -99,7 +101,7 @@ const MINIFY_OPTIONS: MinifyOptions = {
   safari10: true
 }
 
-export const INITIAL_STATE: Partial<State> = {
+export const INITIAL_STATE: DeepPartial<State> = {
   defaults: {
     lodash: {
       id: ['lodash-es', 'lodash', 'lodash-fp'],

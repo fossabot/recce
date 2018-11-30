@@ -3,19 +3,27 @@ import { Command, flags } from '@oclif/command'
 import { LoggerLevel, LoggerMethod, logger } from '@escapace/logger'
 import { State } from './types'
 import { Store } from 'redux'
-import { bind, get, isUndefined } from 'lodash'
-import { dirname, join } from 'path'
+import { bind, filter, get, isUndefined } from 'lodash'
+import { dirname, join, resolve } from 'path'
 import { packageJson } from './utilities/packageJson'
+import { isFile } from './utilities/isFile'
+import { isDirectory } from './utilities/isDirectory'
 import { store } from './store'
 
-import { SET_CONTEXT, SET_OCLIF_CONFIG, SET_PACKAGE_JSON, SET_PREFIX } from './actions'
+import {
+  SET_CONTEXT,
+  SET_OCLIF_CONFIG,
+  SET_PACKAGE_JSON,
+  SET_PREFIX,
+  SET_TSCONFIG
+} from './actions'
 
 export default abstract class extends Command {
   public static flags = {
     help: flags.help({ char: 'h' }),
-    context: flags.string({
-      char: 'c',
-      description: 'project directory',
+    project: flags.string({
+      char: 'p',
+      description: "path to 'tsconfig.json', or to a folder with it",
       required: false
     }),
     verbose: flags.boolean({
@@ -53,9 +61,28 @@ export default abstract class extends Command {
 
     const state = store.getState()
 
-    const { content, path } = await packageJson(
-      isUndefined(flags.context) ? process.cwd() : flags.context
+    const project: string = isUndefined(flags.project) ? process.cwd() : flags.project
+
+    const tests = filter(
+      await Promise.all([
+        isFile(project),
+        isDirectory(project).then(prod => {
+          prod.input = join(prod.input, 'tsconfig.json')
+
+          return prod
+        })
+      ]),
+      test => test.test
     )
+
+    if (tests.length === 0) {
+      throw new Error(`The specified path does not exist: '${flags.project}'.`)
+    }
+
+    const tsconfig = resolve(tests[0].input)
+    const context = dirname(tsconfig)
+
+    const { content, path } = await packageJson(context)
 
     if (state.oclifConfig.root === dirname(path)) {
       throw new Error('Change the working directory')
@@ -75,5 +102,6 @@ export default abstract class extends Command {
 
     store.dispatch(SET_CONTEXT(dirname(path)))
     store.dispatch(SET_PACKAGE_JSON(content))
+    store.dispatch(SET_TSCONFIG(tsconfig))
   }
 }

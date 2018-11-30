@@ -13,15 +13,15 @@ import sourcemaps = require('gulp-sourcemaps')
 // import DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 import TerserPlugin = require('terser-webpack-plugin')
 import { BuildModule, BuildModules } from './types'
-import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+// import TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 import typescript = require('gulp-typescript')
 import { clean } from './utilities/clean'
 import { checkEntries } from './utilities/checkEntries'
 import { FilterWebpackPlugin } from './filterWebpackPlugin'
 import { DoneHookWebpackPlugin } from './doneHookWebpackPlugin'
-import { dispatchError, dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
+import { dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
 import { compilerOptions as readCompilerOptions } from './utilities/compilerOptions'
-import { SET_BUILD_OPTIONS } from './actions'
+import { SET_BUILD_OPTIONS, SET_ROOTDIR } from './actions'
 import { extname, join } from 'path'
 import { readFileAsync } from './utilities/readFileAsync'
 import gzipSize = require('gzip-size')
@@ -57,9 +57,7 @@ import {
   camelCase,
   compact,
   concat,
-  defaults,
   filter,
-  first,
   includes,
   isEmpty,
   isNull,
@@ -70,7 +68,8 @@ import {
   omit,
   some,
   toUpper,
-  uniq
+  uniq,
+  without
 } from 'lodash'
 
 export interface BuildResult {
@@ -80,65 +79,53 @@ export interface BuildResult {
   hasErrors: boolean
 }
 
-export interface BuildProps {
-  module: BuildModule
-}
-
-const babelOptions = (props: BuildProps) => {
+const babelOptions = (module: BuildModule) => {
   const state = store.getState()
 
   return {
     cacheDirectory: false,
     babelrc: false,
     plugins: compact([
-      resolveFrom(rootModules(state), 'babel-plugin-annotate-pure-calls'),
       resolveFrom(rootModules(state), '@babel/plugin-syntax-dynamic-import'),
-      condLodash(state)
+      module === 'esm'
+        ? resolveFrom(rootModules(state), 'babel-plugin-annotate-pure-calls')
+        : undefined,
+      module === 'esm'
+        ? condLodash(state)
+          ? [
+              resolveFrom(rootModules(state), 'babel-plugin-lodash'),
+              {
+                id: lodashId(state),
+                cwd: context(state)
+              }
+            ]
+          : undefined
+        : undefined
+    ]),
+    presets: compact([
+      module !== 'esm'
         ? [
-            resolveFrom(rootModules(state), 'babel-plugin-lodash'),
+            resolveFrom(rootModules(state), '@babel/preset-env'),
             {
-              id: lodashId(state),
-              cwd: context(state)
+              configPath: context(state),
+              exclude: ['transform-async-to-generator', 'transform-regenerator'],
+              modules: false,
+              loose: true,
+              ignoreBrowserslistConfig: module === 'cjs',
+              targets:
+                module === 'cjs'
+                  ? {
+                      node: nodeTarget(state)
+                    }
+                  : undefined
             }
           ]
         : undefined
-    ]),
-    presets: [
-      [
-        resolveFrom(rootModules(state), '@babel/preset-env'),
-        {
-          configPath: context(state),
-          exclude: ['transform-async-to-generator', 'transform-regenerator'],
-          modules: false,
-          loose: true,
-          ignoreBrowserslistConfig: props.module === 'cjs',
-          targets:
-            props.module === 'cjs'
-              ? {
-                  node: nodeTarget(state)
-                }
-              : undefined
-        }
-      ]
-    ]
+    ])
   }
 }
 
-const gulpBabelOptions = () => omit(babelOptions({ module: 'esm' }), ['cacheDirectory'])
-const webpackBabelOptions = babelOptions
-
-const typescriptOptions = (props: { module: BuildModule }) => {
-  const state = store.getState()
-
-  return {
-    errorFormatter: dispatchError(props),
-    compiler: resolveFrom(contextModules(state), 'typescript'),
-    configFile: tsconfig(state),
-    silent: true,
-    transpileOnly: false,
-    compilerOptions: compilerOptions(state)
-  }
-}
+const gulpBabelOptions = () => omit(babelOptions('esm'), ['cacheDirectory'])
 
 const gulpBuild = async (): Promise<BuildResult> => {
   const state = store.getState()
@@ -155,12 +142,13 @@ const gulpBuild = async (): Promise<BuildResult> => {
     const project = typescript.createProject(tsconfig(state), {
       noEmitOnError: true,
       typescript: compiler,
-      sourceMap: undefined,
-      inlineSourceMap: undefined,
-      inlineSources: undefined,
       sourceRoot: undefined,
-      watch: undefined,
-      ...compilerOptions(state)
+      ...compilerOptions(state),
+      outDir: context(state),
+      watch: false,
+      sourceMap: true,
+      inlineSourceMap: true,
+      inlineSources: true
     })
 
     const stream = project
@@ -175,20 +163,26 @@ const gulpBuild = async (): Promise<BuildResult> => {
               result.errors.push(rendered)
             }
           },
-          finish(results) {
+          finish(data) {
             const showErrorCount = (count: number) => {
               if (count === 0) return
 
               result.hasErrors = true
             }
 
-            showErrorCount(results.transpileErrors)
-            showErrorCount(results.optionsErrors)
-            showErrorCount(results.syntaxErrors)
-            showErrorCount(results.globalErrors)
-            showErrorCount(results.semanticErrors)
-            showErrorCount(results.declarationErrors)
-            showErrorCount(results.emitErrors)
+            store.dispatch(
+              SET_ROOTDIR(
+                isUndefined(project.options.rootDir) ? context(state) : project.options.rootDir
+              )
+            )
+
+            showErrorCount(data.transpileErrors)
+            showErrorCount(data.optionsErrors)
+            showErrorCount(data.syntaxErrors)
+            showErrorCount(data.globalErrors)
+            showErrorCount(data.semanticErrors)
+            showErrorCount(data.declarationErrors)
+            showErrorCount(data.emitErrors)
           }
         })
       )
@@ -196,27 +190,27 @@ const gulpBuild = async (): Promise<BuildResult> => {
 
     const specFilter = gulpFilter(file => !/\.spec\.js$/.test(file.path))
     const specTypesFilter = gulpFilter(file => !/\.spec\.d\.ts$/.test(file.path))
+    // const sourcemapFilter = gulpFilter(file => !/\.map$/.test(file.path))
 
-    merge(
-      compact([
-        declaration(state)
-          ? stream.dts.pipe(specTypesFilter).pipe(gulp.dest(outputPathTypes(state)))
-          : undefined,
-        stream.js
-          .pipe(specFilter)
-          // tslint:disable-next-line no-any
-          .pipe(babel(gulpBabelOptions() as any))
-          .pipe(sourcemaps.write('.', { includeContent: true }))
-          .pipe(gulp.dest(outputPathEsm(state)))
-          .pipe(
-            gulpTap(file => {
-              if (extname(file.path) === '.js') {
-                result.assets.push(file.path)
-              }
-            })
-          )
-      ])
-    )
+    const ds = declaration(state)
+      ? stream.dts.pipe(specTypesFilter).pipe(gulp.dest(outputPathTypes(state)))
+      : undefined
+
+    const es = stream.js
+      .pipe(specFilter)
+      // tslint:disable-next-line no-any
+      .pipe(babel(gulpBabelOptions() as any))
+      .pipe(sourcemaps.write('.', { includeContent: false }))
+      .pipe(gulp.dest(outputPathEsm(state)))
+      .pipe(
+        gulpTap(file => {
+          if (extname(file.path) === '.js') {
+            result.assets.push(file.path)
+          }
+        })
+      )
+
+    merge(compact([ds, es]))
       .on('finish', () => {
         resolve(result)
       })
@@ -232,23 +226,14 @@ const gulpBuild = async (): Promise<BuildResult> => {
   })
 }
 
-const webpackRules = (props: { module: 'cjs' | 'umd' }): webpack.RuleSetRule[] => {
+const webpackRules = (module: 'cjs' | 'umd'): webpack.RuleSetRule[] => {
   const state = store.getState()
 
   return [
     {
-      test: /\.ts(x?)$/,
-      exclude: /node_modules/,
-      use: [
-        {
-          loader: resolveFrom(rootModules(state), 'babel-loader'),
-          options: webpackBabelOptions(props)
-        },
-        {
-          loader: resolveFrom(rootModules(state), 'ts-loader'),
-          options: typescriptOptions(props)
-        }
-      ]
+      test: /\.js$/,
+      use: [resolveFrom(rootModules(state), 'source-map-loader')],
+      enforce: 'pre'
     },
     {
       test: /\.js$/,
@@ -256,15 +241,14 @@ const webpackRules = (props: { module: 'cjs' | 'umd' }): webpack.RuleSetRule[] =
       use: [
         {
           loader: 'babel-loader',
-          options: webpackBabelOptions(props)
+          options: babelOptions(module)
         }
       ]
     }
   ]
 }
 
-const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configuration => {
-  const { module } = props
+const webpackConfiguration = (module: 'cjs' | 'umd'): webpack.Configuration => {
   const state = store.getState()
 
   return {
@@ -290,7 +274,7 @@ const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configu
       filename: `[name].js`
     },
     module: {
-      rules: webpackRules(props)
+      rules: webpackRules(module)
     },
     optimization: {
       nodeEnv: false,
@@ -321,12 +305,6 @@ const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configu
     ]),
     resolve: {
       symlinks: true,
-      plugins: [
-        new TsconfigPathsPlugin({
-          silent: true,
-          configFile: tsconfig(state)
-        })
-      ],
       extensions: ['.ts', '.js', '.tsx', '.json'],
       modules: [contextModules(state)],
       mainFields: module === 'umd' ? ['module', 'browser', 'main'] : ['module', 'main']
@@ -338,18 +316,16 @@ const webpackConfiguration = (props: { module: 'cjs' | 'umd' }): webpack.Configu
   }
 }
 
-const webpackBuild = async (props: {
-  module: 'cjs' | 'umd'
-  cb?: (result: BuildResult) => void
-}): Promise<{
+const webpackBuild = async (
+  module: 'cjs' | 'umd',
+  cb: (result: BuildResult) => void = noop
+): Promise<{
   compiler: webpack.Compiler
   close: () => void
   invalidate: () => void
 }> => {
-  const configuration = webpackConfiguration(props)
+  const configuration = webpackConfiguration(module)
   const compiler = webpack(configuration)
-
-  const { module, cb } = defaults(props, { cb: noop })
 
   const method = (handler: webpack.ICompiler.Handler) => {
     const state = store.getState()
@@ -392,12 +368,15 @@ const webpackBuild = async (props: {
           result.assets = map(info.assets, asset => asset.name)
 
           if (isNull(err)) {
-            result.errors = map(stats.compilation.errors, (error, index) => {
-              if (error.loaderSource === 'ts-loader') {
-                return error.message
-              } else {
-                return info.errors[index]
-              }
+            result.errors = map(stats.compilation.errors, (_, index) => {
+              // return info.errors[index]
+              // return error.message
+              return info.errors[index]
+              // if (error.loaderSource === 'ts-loader') {
+              //   return error.message
+              // } else {
+              //   return info.errors[index]
+              // }
             })
           } else {
             result.errors = concat(compact([err.message, err.details]))
@@ -451,26 +430,16 @@ export const build = async () => {
 
   const state = store.getState()
 
-  const results: BuildResult[] = await Promise.all(
-    map(modules(state), module => {
-      switch (module) {
-        case 'esm': {
-          return gulpBuild()
-        }
-        default: {
-          return new Promise<BuildResult>(resolve =>
-            webpackBuild({
-              module,
-              // tslint:disable-next-line no-unnecessary-callback-wrapper
-              cb: result => {
-                resolve(result)
-              }
-            })
-          )
-        }
-      }
-    })
-  )
+  const results: BuildResult[] = []
+
+  results.push(await gulpBuild())
+
+  const wbp = (module: 'cjs' | 'umd') =>
+    // tslint:disable-next-line promise-must-complete
+    new Promise<BuildResult>(resolve => webpackBuild(module, resolve)).then(res =>
+      results.push(res)
+    )
+  await Promise.all(map(without(modules(state), 'esm'), wbp))
 
   const fail = filter(results, result => result.hasErrors)
 
@@ -504,25 +473,12 @@ export const build = async () => {
   }
 }
 
-export const watch = async () => {
-  await checkEntries()
-  await clean()
-
-  const state = store.getState()
-  const module = first(modules(state)) as 'cjs' | 'umd'
-
-  return webpackBuild({
-    module
-  })
-}
-
 export const parseFlags = async (flags: {
   entry: string[]
   clean: boolean
   minimize: boolean
   module: string[] | string
   output: string | undefined
-  context: string | undefined
 }) => {
   const entries: string[] = isUndefined(flags.entry) ? [] : uniq(compact(flags.entry))
 

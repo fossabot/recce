@@ -23,6 +23,7 @@ const actionCreatorFactory = <P>(type: string): ActionCreator<P> =>
 export const SET_OCLIF_CONFIG = actionCreatorFactory<OclifConfig>('SET_OCLIF_CONFIG')
 
 export const SET_PACKAGE_JSON = actionCreatorFactory<PackageJson>('SET_PACKAGE_JSON')
+export const SET_TSCONFIG = actionCreatorFactory<string>('SET_TSCONFIG')
 
 export const SET_CONTEXT = actionCreatorFactory<string>('SET_CONTEXT')
 
@@ -31,6 +32,8 @@ export const SET_MODE = actionCreatorFactory<Mode>('SET_MODE')
 export const SET_BUILD_OPTIONS = actionCreatorFactory<BuildOptions>('SET_BUILD_OPTIONS')
 
 export const SET_PREFIX = actionCreatorFactory<Prefix>('SET_PREFIX')
+
+export const SET_ROOTDIR = actionCreatorFactory<string>('SET_ROOTDIR')
 
 export const ADD_TYPESCRIPT_ERROR = actionCreatorFactory<TypescriptErrorRecord>(
   'ADD_TYPESCRIPT_ERROR'
