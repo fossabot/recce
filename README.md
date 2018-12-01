@@ -29,8 +29,30 @@ USAGE
 # Commands
 
 <!-- commands -->
+* [`recce api-extract`](#recce-api-extract)
 * [`recce build`](#recce-build)
 * [`recce help [COMMAND]`](#recce-help-command)
+
+## `recce api-extract`
+
+Extract API from declaration files
+
+```
+USAGE
+  $ recce api-extract
+
+OPTIONS
+  -e, --entry=entry      (required) d.ts entry point
+  -h, --help             show CLI help
+  -o, --output=output    [default: api.json] output json file path
+  -p, --project=project  path to 'tsconfig.json', or to a folder with it
+  -q, --quiet            don't output anything
+
+EXAMPLE
+  $ recce api-extract -p [directory] -e lib/hello.d.ts
+```
+
+_See code: [lib/commands/api-extract.js](https://github.com/escapace/recce/blob/v1.8.0/lib/commands/api-extract.js)_
 
 ## `recce build`
 
@@ -41,14 +63,14 @@ USAGE
   $ recce build
 
 OPTIONS
-  -e, --entry=entry         project entry point
-  -h, --help                show CLI help
-  -m, --module=cjs|umd|esm  module code generation
-  -o, --output=output       [default: lib] output directory path
-  -p, --project=project     path to 'tsconfig.json', or to a folder with it
-  -q, --quiet               don't output anything
-  --[no-]clean              [default: true] clean output directory
-  --[no-]minimize           [default: true] minimize javascript
+  -e, --entry=entry      project entry point
+  -h, --help             show CLI help
+  -m, --module=cjs|umd   module code generation (esm is always enabled)
+  -o, --output=output    [default: lib] output directory path
+  -p, --project=project  path to 'tsconfig.json', or to a folder with it
+  -q, --quiet            don't output anything
+  --[no-]clean           [default: true] clean output directory
+  --[no-]minimize        [default: true] minimize javascript
 
 EXAMPLES
   $ recce build -p [directory] -m esm -e src/hello.ts
@@ -56,6 +78,8 @@ EXAMPLES
   $ recce build -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
+
+_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v1.8.0/lib/commands/build.js)_
 
 ## `recce help [COMMAND]`
 

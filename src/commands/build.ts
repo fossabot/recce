@@ -20,9 +20,9 @@ export default class Build extends Command {
     ...Command.flags,
     module: flags.string({
       char: 'm',
-      description: 'module code generation',
+      description: 'module code generation (esm is always enabled)',
       multiple: true,
-      options: ['cjs', 'umd', 'esm'],
+      options: ['cjs', 'umd'],
       required: false
     }),
     ...pick(commandFlags, ['entry', 'output', 'minimize', 'clean'])

@@ -39,7 +39,7 @@ export const mode = (state: State) => state.mode
 
 export const condWatch = createSelector(
   mode,
-  m => m === 'watch'
+  () => false
 )
 export const condBuild = createSelector(
   mode,

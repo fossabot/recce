@@ -80,9 +80,8 @@ export default abstract class extends Command {
     }
 
     const tsconfig = resolve(tests[0].input)
-    const context = dirname(tsconfig)
 
-    const { content, path } = await packageJson(context)
+    const { content, path } = await packageJson(dirname(tsconfig))
 
     if (state.oclifConfig.root === dirname(path)) {
       throw new Error('Change the working directory')
@@ -98,7 +97,7 @@ export default abstract class extends Command {
       })
     )
 
-    process.chdir(dirname(path))
+    // process.chdir(dirname(path))
 
     store.dispatch(SET_CONTEXT(dirname(path)))
     store.dispatch(SET_PACKAGE_JSON(content))

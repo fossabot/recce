@@ -58,7 +58,7 @@ export interface BuildOptions {
   clean: boolean
 }
 
-export type Mode = 'build' | 'test' | 'watch'
+export type Mode = 'build' | 'api-extract'
 
 export interface Prefix {
   root: string

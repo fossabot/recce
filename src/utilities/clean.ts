@@ -1,21 +1,11 @@
-import rimraf = require('rimraf')
 import { condClean, outputPath } from '../selectors'
 import { store } from '../store'
+import { rimraf } from './rimraf'
 
-export const clean = async () =>
-  new Promise((resolve, reject) => {
-    const state = store.getState()
+export const clean = async () => {
+  const state = store.getState()
 
-    if (condClean(state)) {
-      rimraf(outputPath(state), err => {
-        // tslint:disable-next-line strict-boolean-expressions
-        if (err) {
-          reject(err)
-        } else {
-          resolve()
-        }
-      })
-    } else {
-      resolve()
-    }
-  })
+  if (condClean(state)) {
+    await rimraf(outputPath(state))
+  }
+}

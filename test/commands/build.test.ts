@@ -3,6 +3,9 @@ import { test } from '@oclif/test'
 import { resolve } from 'path'
 
 describe('build', () => {
+  before(() => {
+    process.chdir(resolve('test/fixtures/hello-world'))
+  })
   // test
   //   .stdout()
   //   .command(['build'])
@@ -10,11 +13,6 @@ describe('build', () => {
   //     expect(ctx.error).to.equal(undefined)
   //     // expect(ctx.stdout).to.contain('hello world')
   //   })
-  test
-    .stdout()
-    .command(['build'])
-    .catch(/Change the working directory/)
-    .it('throws in recce directory')
 
   test
     .stdout()
@@ -43,8 +41,8 @@ describe('build', () => {
 
   test
     .stdout()
-    .command(['build', '-p', resolve('test/fixtures/hello-world'), '-m', 'esm'])
-    .it('build -p [directory] -m esm -e src/hello.ts')
+    .command(['build', '-p', resolve('test/fixtures/hello-world')])
+    .it('build -p [directory] -e src/hello.ts')
 
   test
     .stdout()
@@ -82,12 +80,10 @@ describe('build', () => {
       'cjs',
       '-m',
       'umd',
-      '-m',
-      'esm',
       '-e',
       'src/hello.ts'
     ])
-    .it('build -p [directory] -m cjs -m umd -m esm -e src/hello.ts')
+    .it('build -p [directory] -m cjs -m umd -e src/hello.ts')
 
   // Two entries
 
@@ -131,12 +127,10 @@ describe('build', () => {
       'cjs',
       '-m',
       'umd',
-      '-m',
-      'esm',
       '-e',
       'src/hello.ts',
       '-e',
       'src/world.ts'
     ])
-    .it('build -p [directory] -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts')
+    .it('build -p [directory] -m cjs -m umd -e src/hello.ts -e src/world.ts')
 })

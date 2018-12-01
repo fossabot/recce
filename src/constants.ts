@@ -12,8 +12,7 @@ export const commandFlags = {
   }),
   output: flags.string({
     char: 'o',
-    description: 'output directory path',
-    default: 'lib',
+    description: '[default: lib] output directory path',
     required: false
   }),
   minimize: flags.boolean({
@@ -23,6 +22,20 @@ export const commandFlags = {
   clean: flags.boolean({
     description: '[default: true] clean output directory',
     allowNo: true
+  })
+}
+
+export const apiExtractFlags = {
+  entry: flags.string({
+    char: 'e',
+    description: 'd.ts entry point',
+    multiple: false,
+    required: true
+  }),
+  output: flags.string({
+    char: 'o',
+    description: '[default: api.json] output json file path',
+    required: false
   })
 }
 

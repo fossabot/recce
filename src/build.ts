@@ -22,7 +22,7 @@ import { DoneHookWebpackPlugin } from './doneHookWebpackPlugin'
 import { dispatchFilesFromErrors, normalizeGulpError, reportErrors } from './errors'
 import { compilerOptions as readCompilerOptions } from './utilities/compilerOptions'
 import { SET_BUILD_OPTIONS, SET_ROOTDIR } from './actions'
-import { extname, join } from 'path'
+import path from 'path'
 import { readFileAsync } from './utilities/readFileAsync'
 import gzipSize = require('gzip-size')
 import prettyBytes = require('pretty-bytes')
@@ -144,6 +144,7 @@ const gulpBuild = async (): Promise<BuildResult> => {
       typescript: compiler,
       sourceRoot: undefined,
       ...compilerOptions(state),
+      removeComments: false,
       outDir: context(state),
       watch: false,
       sourceMap: true,
@@ -204,7 +205,7 @@ const gulpBuild = async (): Promise<BuildResult> => {
       .pipe(gulp.dest(outputPathEsm(state)))
       .pipe(
         gulpTap(file => {
-          if (extname(file.path) === '.js') {
+          if (path.extname(file.path) === '.js') {
             result.assets.push(file.path)
           }
         })
@@ -391,7 +392,7 @@ const webpackBuild = async (
           cb(result)
         } else {
           result.assets = filter(
-            map(info.assets, asset => join(info.outputPath, asset.name)),
+            map(info.assets, asset => path.join(info.outputPath, asset.name)),
             p => !/\.js\.map/.test(p)
           )
 
@@ -480,7 +481,10 @@ export const parseFlags = async (flags: {
   module: string[] | string
   output: string | undefined
 }) => {
-  const entries: string[] = isUndefined(flags.entry) ? [] : uniq(compact(flags.entry))
+  // tslint:disable-next-line no-unnecessary-callback-wrapper
+  const entries: string[] = map(isUndefined(flags.entry) ? [] : uniq(compact(flags.entry)), str =>
+    path.resolve(str)
+  )
 
   let _modules: BuildModules
 
@@ -492,7 +496,9 @@ export const parseFlags = async (flags: {
 
     _modules = uniq(
       filter(
-        isUndefined(flags.module) ? defaultModules : (flags.module as BuildModules),
+        isUndefined(flags.module)
+          ? defaultModules
+          : (concat(flags.module, ['esm']) as BuildModules),
         t => t === 'cjs' || t === 'esm' || t === 'umd'
       )
     )
@@ -502,7 +508,10 @@ export const parseFlags = async (flags: {
     }
   }
 
-  const outputPath = isUndefined(flags.output) ? 'lib' : flags.output
+  const outputPath = isUndefined(flags.output)
+    ? path.resolve(context(store.getState()), 'lib')
+    : path.resolve(flags.output)
+
   const _clean = isUndefined(flags.clean) ? true : flags.clean
   const minimize = isUndefined(flags.minimize) ? true : flags.minimize
 
