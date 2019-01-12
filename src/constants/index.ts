@@ -1,4 +1,4 @@
-import { CompilerOptions, LodashOptions, MinifyOptions, NodeOptions, State } from './types'
+import { CompilerOptions, LodashOptions, MinifyOptions, NodeOptions, State } from '../types'
 import { flags } from '@oclif/command'
 
 import { DeepPartial } from 'redux'

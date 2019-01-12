@@ -1,14 +1,10 @@
 import { Extractor, IExtractorConfig, IExtractorOptions } from '@microsoft/api-extractor'
-import { context, contextModules, packageName } from './selectors'
+import { context, contextModules, packageName } from '../selectors'
 import { resolve } from 'path'
 import { assign, isUndefined, noop } from 'lodash'
-import { store } from './store'
+import { store } from '../store'
 import { logger } from '@escapace/logger'
-import { rimraf } from './utilities/rimraf'
-import { isEmpty } from './utilities/isEmpty'
-import { readFileAsync } from './utilities/readFileAsync'
-import { writeFileAsync } from './utilities/writeFileAsync'
-import { isFile } from './utilities/isFile'
+import { isEmpty, isFile, readFileAsync, rimraf, writeFileAsync } from '../utilities'
 
 export const run = async ({ entry, output }: { entry: string; output?: string }) => {
   const state = store.getState()
@@ -86,7 +82,3 @@ export const run = async ({ entry, output }: { entry: string; output?: string })
     await cleanup()
   }
 }
-
-// export const run = async ({ entry: string }) => {
-//   return
-// }

@@ -1,9 +1,9 @@
 import produce from 'immer'
 import { AnyAction, DeepPartial, Store, createStore } from 'redux'
 import { isUndefined, union } from 'lodash'
-import { INITIAL_STATE } from './constants'
+import { INITIAL_STATE } from '../constants'
 
-import { Action, ActionCreator, State } from './types'
+import { Action, ActionCreator, State } from '../types'
 
 import {
   ADD_FILE_SOURCE,
@@ -18,7 +18,7 @@ import {
   SET_PREFIX,
   SET_ROOTDIR,
   SET_TSCONFIG
-} from './actions'
+} from '../actions'
 
 export function isType<P>(action: AnyAction, actionCreator: ActionCreator<P>): action is Action<P> {
   return action.type === actionCreator.type

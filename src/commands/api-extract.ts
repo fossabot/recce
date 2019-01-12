@@ -23,7 +23,7 @@ export default class ApiExtract extends Command {
 
     this.store.dispatch(SET_MODE('api-extract'))
 
-    const { run } = await import('../api-extract')
+    const { run } = await import('../effects/api-extract')
 
     return run(flags)
   }

@@ -84,13 +84,15 @@ export interface State {
   }
 }
 
-// export type Observe<S> = <P>(
-//   selector: Selector<S, P>,
-//   cb: (state: P, oldState: P, store: Store<S>) => void
-// ) => Unsubscribe
-
 export interface PackageJson extends Package {
   browserlist: string[]
+}
+
+export interface BuildResult {
+  module: BuildModule
+  assets: string[]
+  errors: string[]
+  hasErrors: boolean
 }
 
 export { MinifyOptions } from 'terser-webpack-plugin'

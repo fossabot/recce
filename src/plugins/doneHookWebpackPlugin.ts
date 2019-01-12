@@ -1,6 +1,6 @@
 import { Compiler } from 'webpack'
 
-import { dispatchFilesFromErrors, reportErrors, resetErrors } from './errors'
+import { dispatchFilesFromErrors, reportErrors, resetErrors } from '../effects/errors'
 
 export class DoneHookWebpackPlugin {
   public apply(compiler: Compiler) {

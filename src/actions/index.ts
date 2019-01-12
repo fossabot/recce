@@ -8,7 +8,7 @@ import {
   PackageJson,
   Prefix,
   TypescriptErrorRecord
-} from './types'
+} from '../types'
 import { IConfig as OclifConfig } from '@oclif/config'
 
 const actionCreatorFactory = <P>(type: string): ActionCreator<P> =>

@@ -36,7 +36,7 @@ export default class Build extends Command {
 
     this.store.dispatch(SET_MODE('build'))
 
-    const { build, parseFlags } = await import('../build')
+    const { build, parseFlags } = await import('../effects/build')
 
     await parseFlags(flags)
 

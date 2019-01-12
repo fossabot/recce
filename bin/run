@@ -3,6 +3,12 @@
 require('v8-compile-cache')
 const { logger } = require('@escapace/logger')
 
+process.on('unhandledRejection', error => {
+  logger.error(error)
+
+  process.exit(1)
+})
+
 require('@oclif/command').run()
 // .catch(require('@oclif/errors/handle'))
   .catch(err => {

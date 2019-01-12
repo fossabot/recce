@@ -5,18 +5,18 @@ import {
   ADD_TYPESCRIPT_ERROR,
   RESET_FILE_SOURCES,
   RESET_TYPESCRIPT_ERRORS
-} from './actions'
-import { BuildModule, FileSource, TypescriptError } from './types'
+} from '../actions'
+import { BuildModule, FileSource, TypescriptError } from '../types'
 import { EOL } from 'os'
 // tslint:disable-next-line no-submodule-imports
 import { TypeScriptError } from 'gulp-typescript/release/reporter'
 import { codeFrameColumns } from '@babel/code-frame'
-import { context, errors, files } from './selectors'
+import { context, errors, files } from '../selectors/general'
 import { forEach, forOwn, includes, isUndefined, keys, upperCase, values } from 'lodash'
 import { logger } from '@escapace/logger'
 import { normalize, relative } from 'path'
-import { store } from './store'
-import { readFileAsync } from './utilities/readFileAsync'
+import { store } from '../store'
+import { readFileAsync } from '../utilities/readFileAsync'
 
 const objectHash = ObjectHash()
 
