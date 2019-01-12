@@ -58,16 +58,7 @@ export const webpackBuild = async (
           result.assets = map(info.assets, asset => asset.name)
 
           if (isNull(err)) {
-            result.errors = map(stats.compilation.errors, (_, index) => {
-              // return info.errors[index]
-              // return error.message
-              return info.errors[index]
-              // if (error.loaderSource === 'ts-loader') {
-              //   return error.message
-              // } else {
-              //   return info.errors[index]
-              // }
-            })
+            result.errors = map(stats.compilation.errors, value => value.toString())
           } else {
             result.errors = concat(compact([err.message, err.details]))
           }

@@ -3,7 +3,7 @@ import path from 'path'
 import prettyBytes = require('pretty-bytes')
 import { BuildModule, BuildModules, BuildResult } from '../types'
 import { SET_BUILD_OPTIONS } from '../actions'
-import { checkEntries, clean, compilerOptions, readFileAsync } from '../utilities'
+import { clean, compilerOptions, readFileAsync, realpathAsync } from '../utilities'
 import { context, modules } from '../selectors'
 import { dispatchFilesFromErrors, reportErrors } from './errors'
 import { gulpBuild } from './gulp'
@@ -15,6 +15,8 @@ import {
   compact,
   concat,
   filter,
+  flatten,
+  forEach,
   isEmpty,
   isString,
   isUndefined,
@@ -42,7 +44,6 @@ import {
 // }
 
 export const build = async () => {
-  await checkEntries()
   await clean()
 
   const state = store.getState()
@@ -56,6 +57,7 @@ export const build = async () => {
     new Promise<BuildResult>(resolve => webpackBuild(module, resolve)).then(res =>
       results.push(res)
     )
+
   await Promise.all(map(without(modules(state), 'esm'), wbp))
 
   const fail = filter(results, result => result.hasErrors)
@@ -64,8 +66,8 @@ export const build = async () => {
     await dispatchFilesFromErrors()
     reportErrors()
 
-    // TODO: non-ts types of errors
-    // fail.forEach(console.log)
+    forEach(uniq(flatten(map(fail, f => f.errors))), str => logger.error(str))
+
     throw new Error('Recce could not finish the build')
   } else {
     const report: string[] = []
@@ -97,9 +99,9 @@ export const parseFlags = async (flags: {
   module: string[] | string
   output: string | undefined
 }) => {
-  // tslint:disable-next-line no-unnecessary-callback-wrapper
-  const entries: string[] = map(isUndefined(flags.entry) ? [] : uniq(compact(flags.entry)), str =>
-    path.resolve(str)
+  const entries: string[] = await Promise.all(
+    // tslint:disable-next-line no-unnecessary-callback-wrapper
+    map(isUndefined(flags.entry) ? [] : uniq(compact(flags.entry)), file => realpathAsync(file))
   )
 
   let _modules: BuildModules

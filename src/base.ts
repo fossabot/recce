@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'path'
 import { packageJson } from './utilities/packageJson'
 import { isFile } from './utilities/isFile'
 import { isDirectory } from './utilities/isDirectory'
+import { realpathAsync } from './utilities/realpathAsync'
 import { store } from './store'
 
 import {
@@ -61,7 +62,11 @@ export default abstract class extends Command {
 
     const state = store.getState()
 
-    const project: string = isUndefined(flags.project) ? process.cwd() : flags.project
+    const project: string = await realpathAsync(
+      isUndefined(flags.project) ? process.cwd() : flags.project
+    ).catch(() => {
+      throw new Error(`The specified path does not exist: '${flags.project}'.`)
+    })
 
     const tests = filter(
       await Promise.all([
@@ -76,7 +81,7 @@ export default abstract class extends Command {
     )
 
     if (tests.length === 0) {
-      throw new Error(`The specified path does not exist: '${flags.project}'.`)
+      throw new Error(`The specified path does not exist: '${project}'.`)
     }
 
     const tsconfig = resolve(tests[0].input)
