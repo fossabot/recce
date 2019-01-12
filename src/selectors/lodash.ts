@@ -1,21 +1,20 @@
 import { createSelector } from 'reselect'
-import { filter, some } from 'lodash'
+import { intersection, keys } from 'lodash'
 import { LodashOptions, State } from '../types'
 
 import { combinedDependencies } from './general'
 
-export const _lodashId = (state: State): string[] => state.defaults.lodash.id
+const id = (state: State): string[] => state.defaults.lodash.id
+
 export const lodashOptions = (state: State): LodashOptions => state.defaults.lodash.options
 
-export const condLodash = createSelector(
-  combinedDependencies,
-  _lodashId,
-  (dep, lmn): boolean => some(lmn, l => dep[l])
-)
-
-// TODO: wrong types
 export const lodashId = createSelector(
   combinedDependencies,
-  _lodashId,
-  (dep, lmn) => filter(lmn, l => dep[l])
+  id,
+  (a, b): string[] => intersection(keys(a), b)
+)
+
+export const condLodash = createSelector(
+  lodashId,
+  (a): boolean => a.length !== 0
 )

@@ -1,10 +1,10 @@
 import { Extractor, IExtractorConfig, IExtractorOptions } from '@microsoft/api-extractor'
-import { context, contextModules, packageName } from '../selectors'
-import { resolve } from 'path'
 import { assign, isUndefined, noop } from 'lodash'
-import { store } from '../store'
-import { logger } from '@escapace/logger'
+import { context, contextModules, packageName } from '../selectors'
 import { isEmpty, isFile, readFileAsync, rimraf, writeFileAsync } from '../utilities'
+import { logger } from '@escapace/logger'
+import { resolve } from 'path'
+import { store } from '../store'
 
 export const run = async ({ entry, output }: { entry: string; output?: string }) => {
   const state = store.getState()

@@ -20,3 +20,5 @@ export {
 export { webpackConfiguration } from './webpack'
 
 export { gulpBabelOptions } from './babel'
+
+export { lodashId } from './lodash'
