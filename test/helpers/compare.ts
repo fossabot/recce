@@ -1,4 +1,4 @@
-/* tslint:disable no-console */
+/* tslint:disable no-console strict-boolean-expressions */
 
 import { compare as c } from 'dir-compare'
 import { format } from 'util'
