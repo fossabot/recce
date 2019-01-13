@@ -6,6 +6,7 @@ import { DoneHookWebpackPlugin, FilterWebpackPlugin } from '../plugins'
 import { createSelector } from 'reselect'
 import { join, parse, relative, resolve } from 'path'
 import { camelCase, compact, fromPairs, map } from 'lodash'
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 
 import { MinifyOptions, State } from '../types'
 
@@ -22,7 +23,8 @@ import {
   outputPathEsm,
   packageName,
   rootDir,
-  rootModules
+  rootModules,
+  tsconfig
 } from './general'
 
 import { condLodash, lodashOptions } from './lodash'
@@ -133,6 +135,13 @@ export const webpackConfiguration = (module: 'cjs' | 'umd') => (
     // new webpack.BannerPlugin(banner)
   ]),
   resolve: {
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: tsconfig(state),
+        mainFields: module === 'umd' ? ['module', 'browser', 'main'] : ['module', 'main'],
+        silent: true
+      })
+    ],
     symlinks: true,
     extensions: ['.ts', '.js', '.tsx', '.json'],
     modules: [contextModules(state)],
