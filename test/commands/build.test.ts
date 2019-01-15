@@ -4,14 +4,27 @@
 import { test } from '@oclif/test'
 import { join, resolve } from 'path'
 import { compare } from '../helpers/compare'
+// import { rimraf } from '../../src/utilities/rimraf'
 
 const fixtureA = resolve('test/fixtures/hello-world')
 const fixtureZ = resolve('test/fixtures/invalid')
 
-describe('build', () => {
+describe('failure modes', () => {
   before(() => {
     process.chdir(fixtureA)
   })
+
+  test
+    .stdout()
+    .command(['build', '-p', fixtureA, '-m', 'cjs'])
+    .catch(/Specify at least one entry for CommonJS and UMD builds/)
+    .it('throws on target cjs and no entry')
+
+  test
+    .stdout()
+    .command(['build', '-p', fixtureA, '-m', 'umd'])
+    .catch(/Specify at least one entry for CommonJS and UMD builds/)
+    .it('throws on target umd and no entry')
 
   test
     .stdout()
@@ -30,6 +43,12 @@ describe('build', () => {
     .command(['build', '-p', fixtureA, '-m', 'umd'])
     .catch(/Specify at least one entry for CommonJS and UMD builds/)
     .it('throws on target umd and no entry')
+})
+
+describe('one entry', () => {
+  before(async () => {
+    process.chdir(fixtureA)
+  })
 
   test
     .stdout()
@@ -72,6 +91,12 @@ describe('build', () => {
     .it('build -p [directory] --no-minimize -m cjs -m umd -e src/hello.ts', async () =>
       compare(join(fixtureA, 'lib'), join(fixtureA, 'expected/case-1'))
     )
+})
+
+describe('two entries', () => {
+  before(() => {
+    process.chdir(fixtureA)
+  })
 
   // Two entries
 
@@ -103,8 +128,5 @@ describe('build', () => {
       '-e',
       'src/world.ts'
     ])
-    .it(
-      'build -p [directory] --no-minimize -m cjs -m umd -e src/hello.ts -e src/world.ts',
-      async () => compare(join(fixtureA, 'lib'), join(fixtureA, 'expected/case-2'))
-    )
+    .it('', async () => compare(join(fixtureA, 'lib'), join(fixtureA, 'expected/case-2')))
 })

@@ -10,10 +10,14 @@ export {
   tsconfig,
   compilerOptions,
   outputPathEsm,
+  outputPathUmd,
+  outputPathCjs,
   outputPathTypes,
+  outputPathStats,
   condBuild,
   condWatch,
   modules,
+  stats,
   declaration
 } from './general'
 

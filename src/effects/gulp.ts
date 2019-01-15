@@ -97,7 +97,11 @@ export const gulpBuild = async (): Promise<BuildResult> => {
       .pipe(specFilter)
       // tslint:disable-next-line no-any
       .pipe(babel(gulpBabelOptions(state) as any))
-      .pipe(sourcemaps.write('.', { includeContent: false }))
+      .pipe(
+        sourcemaps.write('.', {
+          includeContent: true
+        })
+      )
       .pipe(gulp.dest(outputPathEsm(state)))
       .pipe(
         gulpTap(file => {

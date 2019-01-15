@@ -3,8 +3,8 @@ import path from 'path'
 import prettyBytes = require('pretty-bytes')
 import { BuildModule, BuildModules, BuildResult } from '../types'
 import { SET_BUILD_OPTIONS } from '../actions'
-import { clean, compilerOptions, readFileAsync, realpathAsync } from '../utilities'
-import { context, modules } from '../selectors'
+import { clean, compilerOptions, readFileAsync, realpathAsync, writeFileAsync } from '../utilities'
+import { context, modules, outputPathStats, stats } from '../selectors'
 import { dispatchFilesFromErrors, reportErrors } from './errors'
 import { gulpBuild } from './gulp'
 import { logger } from '@escapace/logger'
@@ -43,10 +43,41 @@ import {
 //   }
 // }
 
+export const report = async (results: BuildResult[]) => {
+  const str: string[] = []
+
+  await Promise.all(
+    map(without(modules(store.getState()), 'esm'), (mod: 'cjs' | 'umd') => {
+      const data = stats(mod)(store.getState())
+      const outputPath = outputPathStats(mod)(store.getState())
+
+      if (data !== undefined && outputPath !== undefined) {
+        return writeFileAsync(outputPath, JSON.stringify(data, null, '  '))
+      }
+    })
+  )
+
+  for (const result of results) {
+    let size = 0
+    let buf = Buffer.alloc(0)
+
+    for (const p of result.assets) {
+      const asset = await readFileAsync(p)
+      const tmpBuf = Buffer.concat([asset, buf])
+      buf = tmpBuf
+      size += asset.length
+    }
+
+    const gSize = await gzipSize(buf)
+
+    str.push(`${toUpper(result.module)}: ${prettyBytes(size)} (${prettyBytes(gSize)} gzipped)`)
+  }
+
+  logger.log(str.join('\n'))
+}
+
 export const build = async () => {
   await clean()
-
-  const state = store.getState()
 
   const results: BuildResult[] = []
 
@@ -58,7 +89,7 @@ export const build = async () => {
       results.push(res)
     )
 
-  await Promise.all(map(without(modules(state), 'esm'), wbp))
+  await Promise.all(map(without(modules(store.getState()), 'esm'), wbp))
 
   const fail = filter(results, result => result.hasErrors)
 
@@ -69,27 +100,9 @@ export const build = async () => {
     forEach(uniq(flatten(map(fail, f => f.errors))), str => logger.error(str))
 
     throw new Error('Recce could not finish the build')
-  } else {
-    const report: string[] = []
-
-    for (const result of results) {
-      let size = 0
-      let buf = Buffer.alloc(0)
-
-      for (const p of result.assets) {
-        const asset = await readFileAsync(p)
-        const tmpBuf = Buffer.concat([asset, buf])
-        buf = tmpBuf
-        size += asset.length
-      }
-
-      const gSize = await gzipSize(buf)
-
-      report.push(`${toUpper(result.module)}: ${prettyBytes(size)} (${prettyBytes(gSize)} gzipped)`)
-    }
-
-    logger.log(report.join('\n'))
   }
+
+  return report(results)
 }
 
 export const parseFlags = async (flags: {
@@ -98,6 +111,7 @@ export const parseFlags = async (flags: {
   minimize: boolean
   module: string[] | string
   output: string | undefined
+  stats: string | undefined
 }) => {
   const entries: string[] = await Promise.all(
     // tslint:disable-next-line no-unnecessary-callback-wrapper
@@ -133,16 +147,21 @@ export const parseFlags = async (flags: {
   const _clean = isUndefined(flags.clean) ? true : flags.clean
   const minimize = isUndefined(flags.minimize) ? true : flags.minimize
 
+  if (!isUndefined(flags.stats)) {
+    if (path.basename(flags.stats) !== flags.stats) {
+      throw new Error("The 'stats' options must be a filename, not a path")
+    }
+  }
+
   store.dispatch(
     SET_BUILD_OPTIONS({
-      files: {},
-      errors: {},
       clean: _clean,
       compilerOptions: await compilerOptions(),
       entries,
       minimize,
       outputPath,
-      modules: _modules
+      modules: _modules,
+      stats: flags.stats
     })
   )
 }

@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { join, resolve } from 'path'
-import { assign, map } from 'lodash'
+import { assign, find, map } from 'lodash'
 
 import {
   BuildModules,
@@ -11,26 +11,33 @@ import {
   TypescriptErrorRecord
 } from '../types'
 
-export const tsconfig = (state: State) => state.tsconfig
-export const rootDir = (state: State) => state.build.rootDir
-export const condClean = (state: State): boolean => state.build.clean
-export const condMinimize = (state: State): boolean => state.build.minimize
+export const tsconfig = (state: State) => state.options.tsconfig
+export const rootDir = (state: State) => state.options.rootDir
+export const condClean = (state: State): boolean => state.options.clean
+export const condMinimize = (state: State): boolean => state.options.minimize
 
-export const context = (state: State): string => state.context
-export const contextModules = (state: State): string => state.prefix.context
-export const compilerOptions = (state: State): CompilerOptions => state.build.compilerOptions
+export const context = (state: State): string => state.options.context
+export const contextModules = (state: State): string => state.options.prefix.context
+export const compilerOptions = (state: State): CompilerOptions => state.options.compilerOptions
 
 export const nodeOptions = (state: State): NodeOptions => state.defaults.node
-export const packageJson = (state: State): PackageJson => state.pjson
-export const rootModules = (state: State): string => state.prefix.root
-export const modules = (state: State): BuildModules => state.build.modules
+export const packageJson = (state: State): PackageJson => state.options.pjson
+export const rootModules = (state: State): string => state.options.prefix.root
+export const modules = (state: State): BuildModules => state.options.modules
 
-export const declaration = (state: State): boolean => !!state.build.compilerOptions.declaration
-export const errors = (state: State): { [key: string]: TypescriptErrorRecord } => state.build.errors
-export const files = (state: State) => state.build.files
-export const mode = (state: State) => state.mode
+export const declaration = (state: State): boolean => !!state.options.compilerOptions.declaration
+export const errors = (state: State): { [key: string]: TypescriptErrorRecord } =>
+  state.runtime.errors
+export const files = (state: State) => state.runtime.files
+export const mode = (state: State) => state.options.mode
 
-const _entries = (state: State): string[] => state.build.entries
+export const stats = (m: 'cjs' | 'umd') => (state: State) => {
+  const found = find(state.runtime.stats, ab => ab.module === m)
+
+  return found === undefined ? undefined : found.stats
+}
+
+const _entries = (state: State): string[] => state.options.entries
 
 export const entries = createSelector(
   _entries,
@@ -38,7 +45,7 @@ export const entries = createSelector(
   (ents, ctx) => map(ents, ent => resolve(ctx, ent))
 )
 
-const _outputPath = (state: State): string => state.build.outputPath
+const _outputPath = (state: State): string => state.options.outputPath
 
 export const outputPath = createSelector(
   context,
@@ -50,6 +57,29 @@ export const outputPathEsm = createSelector(
   outputPath,
   o => join(o, 'esm')
 )
+
+export const outputPathCjs = createSelector(
+  outputPath,
+  o => join(o, 'cjs')
+)
+
+export const statsFilename = (state: State) => state.options.stats
+
+export const outputPathUmd = createSelector(
+  outputPath,
+  o => join(o, 'umd')
+)
+
+export const outputPathStats = (m: 'cjs' | 'umd') => {
+  const handler = (c: string, d: string | undefined) => (d === undefined ? undefined : join(c, d))
+  const selector = m === 'cjs' ? outputPathCjs : outputPathUmd
+
+  return createSelector(
+    selector,
+    statsFilename,
+    handler
+  )
+}
 
 export const outputPathTypes = createSelector(
   outputPath,

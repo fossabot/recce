@@ -6,6 +6,6 @@ export const clean = async () => {
   const state = store.getState()
 
   if (condClean(state)) {
-    await rimraf(outputPath(state))
+    return rimraf(outputPath(state))
   }
 }

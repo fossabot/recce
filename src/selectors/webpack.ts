@@ -2,9 +2,9 @@ import TerserPlugin = require('terser-webpack-plugin')
 import lodashPlugin = require('lodash-webpack-plugin')
 import nodeExternals = require('webpack-node-externals')
 import resolveFrom = require('resolve-from')
-import { DoneHookWebpackPlugin, FilterWebpackPlugin } from '../plugins'
+import { DoneHookWebpackPlugin, FilterWebpackPlugin, StatsWriterPlugin } from '../plugins'
 import { createSelector } from 'reselect'
-import { join, parse, relative, resolve } from 'path'
+import { parse, relative, resolve } from 'path'
 import { camelCase, compact, fromPairs, map } from 'lodash'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 
@@ -19,8 +19,9 @@ import {
   contextModules,
   entries,
   nodeOptions,
-  outputPath,
+  outputPathCjs,
   outputPathEsm,
+  outputPathUmd,
   packageName,
   rootDir,
   rootModules,
@@ -32,15 +33,6 @@ import { condLodash, lodashOptions } from './lodash'
 import { babelOptions } from './babel'
 
 const minifyOptions = (state: State): MinifyOptions => state.defaults.minify
-
-const outputPathCjs = createSelector(
-  outputPath,
-  o => join(o, 'cjs')
-)
-const outputPathUmd = createSelector(
-  outputPath,
-  o => join(o, 'umd')
-)
 
 const webpackEntries = createSelector(
   entries,
@@ -91,7 +83,7 @@ export const webpackConfiguration = (module: 'cjs' | 'umd') => (
     module === 'cjs'
       ? [
           nodeExternals({
-            whitelist: ['lodash-es']
+            whitelist: ['lodash-es', /^ramda\/es/]
           })
         ]
       : undefined,
@@ -131,8 +123,8 @@ export const webpackConfiguration = (module: 'cjs' | 'umd') => (
       : undefined,
     new FilterWebpackPlugin({
       patterns: ['*.d.ts']
-    })
-    // new webpack.BannerPlugin(banner)
+    }),
+    new StatsWriterPlugin()
   ]),
   resolve: {
     plugins: [

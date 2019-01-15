@@ -25,7 +25,7 @@ export default class Build extends Command {
       options: ['cjs', 'umd'],
       required: false
     }),
-    ...pick(commandFlags, ['entry', 'output', 'minimize', 'clean'])
+    ...pick(commandFlags, ['entry', 'output', 'minimize', 'clean', 'stats'])
   }
 
   public static args = []

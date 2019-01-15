@@ -19,6 +19,10 @@ export const commandFlags = {
     description: '[default: true] minimize javascript',
     allowNo: true
   }),
+  stats: flags.string({
+    description: 'write JSON file(s) with compilation statistics',
+    required: false
+  }),
   clean: flags.boolean({
     description: '[default: true] clean output directory',
     allowNo: true
@@ -115,6 +119,12 @@ const MINIFY_OPTIONS: MinifyOptions = {
 }
 
 export const INITIAL_STATE: DeepPartial<State> = {
+  options: {},
+  runtime: {
+    stats: [],
+    files: {},
+    errors: {}
+  },
   defaults: {
     lodash: {
       id: ['lodash-es', 'lodash', 'lodash-fp'],

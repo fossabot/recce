@@ -1,13 +1,15 @@
 import produce from 'immer'
 import { AnyAction, DeepPartial, Store, createStore } from 'redux'
-import { isUndefined, union } from 'lodash'
+import { assign, defaults, isUndefined, union } from 'lodash'
 import { INITIAL_STATE } from '../constants'
 
 import { Action, ActionCreator, State } from '../types'
 
 import {
   ADD_FILE_SOURCE,
+  ADD_STATS,
   ADD_TYPESCRIPT_ERROR,
+  RESET,
   RESET_FILE_SOURCES,
   RESET_TYPESCRIPT_ERRORS,
   SET_BUILD_OPTIONS,
@@ -29,19 +31,19 @@ const reducer = (state: DeepPartial<State> = INITIAL_STATE, action: AnyAction) =
     if (isType(action, SET_OCLIF_CONFIG)) {
       draft.oclifConfig = action.payload
     } else if (isType(action, SET_CONTEXT)) {
-      draft.context = action.payload
+      draft.options.context = action.payload
     } else if (isType(action, SET_PACKAGE_JSON)) {
-      draft.pjson = action.payload
+      draft.options.pjson = action.payload
     } else if (isType(action, SET_MODE)) {
-      draft.mode = action.payload
+      draft.options.mode = action.payload
     } else if (isType(action, SET_BUILD_OPTIONS)) {
-      draft.build = action.payload
+      defaults(draft.options, action.payload)
     } else if (isType(action, SET_PREFIX)) {
-      draft.prefix = action.payload
+      draft.options.prefix = action.payload
     } else if (isType(action, SET_ROOTDIR)) {
-      draft.build.rootDir = action.payload
+      draft.options.rootDir = action.payload
     } else if (isType(action, ADD_TYPESCRIPT_ERROR)) {
-      const errors = draft.build.errors
+      const errors = draft.runtime.errors
 
       if (isUndefined(errors[action.payload.hash])) {
         errors[action.payload.hash] = action.payload
@@ -52,13 +54,18 @@ const reducer = (state: DeepPartial<State> = INITIAL_STATE, action: AnyAction) =
         )
       }
     } else if (isType(action, ADD_FILE_SOURCE)) {
-      draft.build.files[action.payload.file] = action.payload.source
+      draft.runtime.files[action.payload.file] = action.payload.source
     } else if (isType(action, RESET_FILE_SOURCES)) {
-      draft.build.files = {}
+      draft.runtime.files = {}
     } else if (isType(action, SET_TSCONFIG)) {
-      draft.tsconfig = action.payload
+      draft.options.tsconfig = action.payload
+    } else if (isType(action, ADD_STATS)) {
+      draft.runtime.stats.push(action.payload)
+    } else if (isType(action, RESET)) {
+      // tslint:disable-next-line
+      assign(draft, INITIAL_STATE)
     } else if (isType(action, RESET_TYPESCRIPT_ERRORS)) {
-      draft.build.errors = {}
+      draft.runtime.errors = {}
     }
   })
 }

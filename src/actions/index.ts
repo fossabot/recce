@@ -2,11 +2,12 @@ import { assign } from 'lodash'
 
 import {
   ActionCreator,
-  BuildOptions,
   FileSource,
   Mode,
+  Options,
   PackageJson,
   Prefix,
+  Stats,
   TypescriptErrorRecord
 } from '../types'
 import { IConfig as OclifConfig } from '@oclif/config'
@@ -29,7 +30,7 @@ export const SET_CONTEXT = actionCreatorFactory<string>('SET_CONTEXT')
 
 export const SET_MODE = actionCreatorFactory<Mode>('SET_MODE')
 
-export const SET_BUILD_OPTIONS = actionCreatorFactory<BuildOptions>('SET_BUILD_OPTIONS')
+export const SET_BUILD_OPTIONS = actionCreatorFactory<Partial<Options>>('SET_BUILD_OPTIONS')
 
 export const SET_PREFIX = actionCreatorFactory<Prefix>('SET_PREFIX')
 
@@ -43,3 +44,7 @@ export const ADD_FILE_SOURCE = actionCreatorFactory<FileSource>('FILE_SOURCE')
 
 export const RESET_FILE_SOURCES = actionCreatorFactory<void>('RESET_FILE_SOURCES')
 export const RESET_TYPESCRIPT_ERRORS = actionCreatorFactory<void>('RESET_TYPESCRIPT_ERRORS')
+
+export const ADD_STATS = actionCreatorFactory<Stats>('ADD_STATS')
+
+export const RESET = actionCreatorFactory<undefined>('RESET')

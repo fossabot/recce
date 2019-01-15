@@ -4,6 +4,7 @@ import semver = require('semver')
 import { BuildModule, State } from '../types'
 import { compact, get, isString, omit } from 'lodash'
 import { condLodash, lodashId } from './lodash'
+import { condRamda } from './ramda'
 import { context, packageJson, rootModules } from './general'
 
 const nodeTarget = createSelector(
@@ -36,16 +37,22 @@ export const babelOptions = (module: BuildModule) => (state: State) => ({
     module === 'esm'
       ? resolveFrom(rootModules(state), 'babel-plugin-annotate-pure-calls')
       : undefined,
-    module === 'esm'
-      ? condLodash(state)
-        ? [
-            resolveFrom(rootModules(state), 'babel-plugin-lodash'),
-            {
-              id: lodashId(state),
-              cwd: context(state)
-            }
-          ]
-        : undefined
+    module === 'esm' && condLodash(state)
+      ? [
+          resolveFrom(rootModules(state), 'babel-plugin-lodash'),
+          {
+            id: lodashId(state),
+            cwd: context(state)
+          }
+        ]
+      : undefined,
+    module === 'esm' && condRamda(state)
+      ? [
+          resolveFrom(rootModules(state), 'babel-plugin-ramda'),
+          {
+            useES: true
+          }
+        ]
       : undefined
   ]),
   presets: compact([
@@ -55,6 +62,7 @@ export const babelOptions = (module: BuildModule) => (state: State) => ({
           {
             configPath: context(state),
             exclude: ['transform-async-to-generator', 'transform-regenerator'],
+            useBuiltIns: false,
             modules: false,
             loose: true,
             ignoreBrowserslistConfig: module === 'cjs',

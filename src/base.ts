@@ -12,6 +12,7 @@ import { realpathAsync } from './utilities/realpathAsync'
 import { store } from './store'
 
 import {
+  RESET,
   SET_CONTEXT,
   SET_OCLIF_CONFIG,
   SET_PACKAGE_JSON,
@@ -58,6 +59,7 @@ export default abstract class extends Command {
       logger.level = 'verbose'
     }
 
+    store.dispatch(RESET(undefined))
     store.dispatch(SET_OCLIF_CONFIG(this.config))
 
     const state = store.getState()

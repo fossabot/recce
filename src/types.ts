@@ -15,6 +15,12 @@ export interface TypescriptError {
   context: string
 }
 
+export interface Stats {
+  module: 'cjs' | 'umd'
+  // tslint:disable-next-line no-any
+  stats: any
+}
+
 export interface TypescriptErrorRecord {
   modules: BuildModule[]
   error: TypescriptError
@@ -46,33 +52,37 @@ export interface FileSource {
   source: string
 }
 
-export interface BuildOptions {
+export interface Prefix {
+  root: string
+  context: string
+}
+
+export interface Options {
+  mode: Mode
   rootDir?: string
-  errors: { [key: string]: TypescriptErrorRecord }
-  files: { [key: string]: string }
   compilerOptions: CompilerOptions
   entries: string[]
   modules: BuildModules
   outputPath: string
   minimize: boolean
   clean: boolean
+  stats: string | undefined
+  context: string
+  tsconfig: string
+  prefix: Prefix
+  pjson: PackageJson
 }
 
 export type Mode = 'build' | 'api-extract'
 
-export interface Prefix {
-  root: string
-  context: string
-}
-
 export interface State {
-  prefix: Prefix
-  mode: Mode
-  context: string
-  tsconfig: string
-  pjson: PackageJson
   oclifConfig: OclifConfig
-  build: BuildOptions
+  options: Options
+  runtime: {
+    errors: { [key: string]: TypescriptErrorRecord }
+    files: { [key: string]: string }
+    stats: Stats[]
+  }
   defaults: {
     node: NodeOptions
     minify: MinifyOptions
