@@ -93,7 +93,7 @@ export const reportErrors = () => {
 
       const loc = `:${chalk.yellow(String(error.line))}:${chalk.yellow(String(error.character))}`
 
-      logger.log(`${file}${loc} - ${severity} ${code}: ${error.content}`, EOL, frame, EOL)
+      logger.log(`\n${file}${loc} - ${severity} ${code}: ${error.content}`, EOL, frame, EOL)
     }
   })
 }

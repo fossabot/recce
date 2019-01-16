@@ -3,6 +3,7 @@ export {
   buildResultsWithErrors,
   compilerOptions,
   condBuild,
+  condBuildWithErrors,
   condClean,
   condStats,
   condWatch,

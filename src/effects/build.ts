@@ -1,8 +1,8 @@
 import path from 'path'
 import { BuildModule, BuildModules } from '../types'
 import { SET_BUILD_OPTIONS } from '../actions'
-import { condClean, condStats, context, modules } from '../selectors'
-import { clean, compilerOptions, realpathAsync } from '../utilities'
+import { condBuildWithErrors, condClean, condStats, context, modules } from '../selectors'
+import { clean, compilerOptions as parseCompilerOptions, realpathAsync } from '../utilities'
 import { gulpBuild } from './gulp'
 import { store } from '../store'
 import { webpackBuild } from './webpack'
@@ -14,11 +14,13 @@ import {
   compact,
   concat,
   filter,
+  includes,
   isEmpty,
   isString,
   isUndefined,
   map,
   some,
+  toLower,
   uniq,
   without
 } from 'lodash'
@@ -71,10 +73,16 @@ export const build = async (flags: {
     }
   }
 
+  const compilerOptions = await parseCompilerOptions()
+
+  if (!includes(['es6', 'es2015', 'esnext'], toLower(compilerOptions.module))) {
+    throw new Error("The 'module' in compiler options must be one of es6, es2015 or esnext")
+  }
+
   store.dispatch(
     SET_BUILD_OPTIONS({
       clean: _clean,
-      compilerOptions: await compilerOptions(),
+      compilerOptions,
       entries,
       minimize,
       outputPath,
@@ -93,9 +101,11 @@ export const build = async (flags: {
       }).start()
 
   const updateSpinner = (text: string) => {
+    const success = !condBuildWithErrors(store.getState())
+
     if (spinner !== null) {
       spinner.stopAndPersist({
-        symbol: '✓',
+        symbol: success ? '✓' : '×',
         text
       })
 
@@ -109,27 +119,28 @@ export const build = async (flags: {
     }
   }
 
-  await clean().then(() => {
-    if (condClean(store.getState())) {
-      updateSpinner('Cleaned the output directory')
-    }
-  })
-
-  await gulpBuild().then(() => updateSpinner('Completed the ES Module build'))
-
-  await Promise.all(
-    map(without(modules(store.getState()), 'esm'), mod =>
-      webpackBuild(mod as 'cjs' | 'umd').then(() =>
-        updateSpinner(
-          mod === 'cjs'
-            ? 'Completed the CommonJS build'
-            : 'Completed the UMD (Universal Module Definition) build'
+  await clean()
+    .then(() => {
+      if (condClean(store.getState())) {
+        updateSpinner('Cleaned the output directory')
+      }
+    })
+    .then(gulpBuild)
+    .then(() => updateSpinner('Completed the ES Module build'))
+    .then(() =>
+      Promise.all(
+        map(without(modules(store.getState()), 'esm'), mod =>
+          webpackBuild(mod as 'cjs' | 'umd').then(() =>
+            updateSpinner(
+              mod === 'cjs'
+                ? 'Completed the CommonJS build'
+                : 'Completed the UMD (Universal Module Definition) build'
+            )
+          )
         )
       )
     )
-  )
-
-  await writeStats()
+    .then(writeStats)
     .then(() => {
       if (
         condStats(store.getState()) &&
@@ -139,6 +150,10 @@ export const build = async (flags: {
       }
     })
     .then(stopSpinner)
+    .then(report)
+    .catch(e => {
+      stopSpinner()
 
-  await report()
+      throw e
+    })
 }

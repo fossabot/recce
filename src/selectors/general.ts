@@ -37,6 +37,11 @@ export const buildResultsWithErrors = createSelector(
   results => filter(results, result => result.hasErrors)
 )
 
+export const condBuildWithErrors = createSelector(
+  buildResultsWithErrors,
+  a => a.length !== 0
+)
+
 export const stats = (m: 'cjs' | 'umd') => (state: State) => {
   const found = find(buildResults(state), ab => ab.module === m)
 

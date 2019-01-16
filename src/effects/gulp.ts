@@ -25,6 +25,7 @@ import {
 
 export const gulpBuild = async () => {
   const state = store.getState()
+
   const compiler = await import(resolveFrom(contextModules(state), 'typescript'))
 
   return new Promise<BuildResult>(resolve => {
