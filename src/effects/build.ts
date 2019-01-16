@@ -83,19 +83,30 @@ export const build = async (flags: {
     })
   )
 
-  const spinner = ora({
-    spinner: 'line',
-    color: 'white'
-  }).start()
+  const isTest = process.env.TEST_OUTPUT === 'true'
+
+  const spinner = isTest
+    ? null
+    : ora({
+        spinner: 'line',
+        color: 'white'
+      }).start()
 
   const updateSpinner = (text: string) => {
-    // spinner.text = text
-    spinner.stopAndPersist({
-      symbol: '✓',
-      text
-    })
-    // spinner.succeed(text)
-    spinner.start('')
+    if (spinner !== null) {
+      spinner.stopAndPersist({
+        symbol: '✓',
+        text
+      })
+
+      spinner.start('')
+    }
+  }
+
+  const stopSpinner = () => {
+    if (spinner !== null) {
+      spinner.stop()
+    }
   }
 
   await clean().then(() => {
@@ -127,7 +138,7 @@ export const build = async (flags: {
         updateSpinner('Saved the compilation statistics')
       }
     })
-    .then(() => spinner.stop())
+    .then(stopSpinner)
 
   await report()
 }
