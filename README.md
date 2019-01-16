@@ -63,14 +63,15 @@ USAGE
   $ recce build
 
 OPTIONS
-  -e, --entry=entry      project entry point
-  -h, --help             show CLI help
-  -m, --module=cjs|umd   module code generation (esm is always enabled)
-  -o, --output=output    [default: lib] output directory path
-  -p, --project=project  path to 'tsconfig.json', or to a folder with it
-  -q, --quiet            don't output anything
-  --[no-]clean           [default: true] clean output directory
-  --[no-]minimize        [default: true] minimize javascript
+  -e, --entry=entry         project entry point
+  -h, --help                show CLI help
+  -m, --module=cjs|umd|esm  [default: esm] module code generation (esm is always enabled)
+  -o, --output=output       [default: lib] output directory path
+  -p, --project=project     path to 'tsconfig.json', or to a folder with it
+  -q, --quiet               don't output anything
+  --[no-]clean              [default: true] clean output directory
+  --[no-]minimize           [default: true] minimize javascript
+  --stats=stats             write JSON file(s) with compilation statistics
 
 EXAMPLES
   $ recce build -p [directory] -m esm -e src/hello.ts
