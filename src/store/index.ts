@@ -7,8 +7,8 @@ import { Action, ActionCreator, State } from '../types'
 
 import {
   ADD_FILE_SOURCE,
-  ADD_STATS,
   ADD_TYPESCRIPT_ERROR,
+  BUILD_RESULT,
   RESET,
   RESET_FILE_SOURCES,
   RESET_TYPESCRIPT_ERRORS,
@@ -59,10 +59,9 @@ const reducer = (state: DeepPartial<State> = INITIAL_STATE, action: AnyAction) =
       draft.runtime.files = {}
     } else if (isType(action, SET_TSCONFIG)) {
       draft.options.tsconfig = action.payload
-    } else if (isType(action, ADD_STATS)) {
-      draft.runtime.stats.push(action.payload)
+    } else if (isType(action, BUILD_RESULT)) {
+      draft.runtime.build.push(action.payload)
     } else if (isType(action, RESET)) {
-      // tslint:disable-next-line
       assign(draft, INITIAL_STATE)
     } else if (isType(action, RESET_TYPESCRIPT_ERRORS)) {
       draft.runtime.errors = {}

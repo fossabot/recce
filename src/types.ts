@@ -15,12 +15,6 @@ export interface TypescriptError {
   context: string
 }
 
-export interface Stats {
-  module: 'cjs' | 'umd'
-  // tslint:disable-next-line no-any
-  stats: any
-}
-
 export interface TypescriptErrorRecord {
   modules: BuildModule[]
   error: TypescriptError
@@ -81,7 +75,7 @@ export interface State {
   runtime: {
     errors: { [key: string]: TypescriptErrorRecord }
     files: { [key: string]: string }
-    stats: Stats[]
+    build: BuildResult[]
   }
   defaults: {
     node: NodeOptions
@@ -103,6 +97,8 @@ export interface BuildResult {
   assets: string[]
   errors: string[]
   hasErrors: boolean
+  // tslint:disable-next-line no-any
+  stats: any
 }
 
 export { MinifyOptions } from 'terser-webpack-plugin'

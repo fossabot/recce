@@ -121,9 +121,9 @@ const MINIFY_OPTIONS: MinifyOptions = {
 export const INITIAL_STATE: DeepPartial<State> = {
   options: {},
   runtime: {
-    stats: [],
     files: {},
-    errors: {}
+    errors: {},
+    build: []
   },
   defaults: {
     lodash: {

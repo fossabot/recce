@@ -11,7 +11,7 @@ import { EOL } from 'os'
 // tslint:disable-next-line no-submodule-imports
 import { TypeScriptError } from 'gulp-typescript/release/reporter'
 import { codeFrameColumns } from '@babel/code-frame'
-import { context, errors, files } from '../selectors/general'
+import { context, files, tsErrors } from '../selectors/general'
 import { forEach, forOwn, includes, isUndefined, keys, upperCase, values } from 'lodash'
 import { logger } from '@escapace/logger'
 import { normalize, relative } from 'path'
@@ -46,7 +46,7 @@ export const dispatchFilesFromErrors = async () => {
   const filenames = keys(files(state))
   const p: { [key: string]: Promise<FileSource> } = {}
 
-  forOwn(errors(store.getState()), ({ error }) => {
+  forOwn(tsErrors(store.getState()), ({ error }) => {
     if (error.file !== '' && !includes(filenames, error.file) && isUndefined(p[error.file])) {
       p[error.file] = readFileAsync(error.file)
         .then(buf => buf.toString('utf-8'))
@@ -65,7 +65,7 @@ export const dispatchFilesFromErrors = async () => {
 export const reportErrors = () => {
   const state = store.getState()
 
-  forEach(errors(state), ({ error }) => {
+  forEach(tsErrors(state), ({ error }) => {
     const file = error.file === '' ? '' : chalk.cyan(relative(error.context, error.file))
     const code = chalk.bold.gray(`TS${error.code}`)
     const severity =

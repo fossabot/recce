@@ -1,28 +1,23 @@
-import gzipSize = require('gzip-size')
 import path from 'path'
-import prettyBytes = require('pretty-bytes')
-import { BuildModule, BuildModules, BuildResult } from '../types'
+import { BuildModule, BuildModules } from '../types'
 import { SET_BUILD_OPTIONS } from '../actions'
-import { clean, compilerOptions, readFileAsync, realpathAsync, writeFileAsync } from '../utilities'
-import { context, modules, outputPathStats, stats } from '../selectors'
-import { dispatchFilesFromErrors, reportErrors } from './errors'
+import { context, modules } from '../selectors'
+import { clean, compilerOptions, realpathAsync } from '../utilities'
 import { gulpBuild } from './gulp'
-import { logger } from '@escapace/logger'
 import { store } from '../store'
 import { webpackBuild } from './webpack'
+import { writeStats } from './stats'
+import { report } from './report'
 
 import {
   compact,
   concat,
   filter,
-  flatten,
-  forEach,
   isEmpty,
   isString,
   isUndefined,
   map,
   some,
-  toUpper,
   uniq,
   without
 } from 'lodash'
@@ -43,69 +38,7 @@ import {
 //   }
 // }
 
-export const report = async (results: BuildResult[]) => {
-  const str: string[] = []
-
-  await Promise.all(
-    map(without(modules(store.getState()), 'esm'), (mod: 'cjs' | 'umd') => {
-      const data = stats(mod)(store.getState())
-      const outputPath = outputPathStats(mod)(store.getState())
-
-      if (data !== undefined && outputPath !== undefined) {
-        return writeFileAsync(outputPath, JSON.stringify(data, null, '  '))
-      }
-    })
-  )
-
-  for (const result of results) {
-    let size = 0
-    let buf = Buffer.alloc(0)
-
-    for (const p of result.assets) {
-      const asset = await readFileAsync(p)
-      const tmpBuf = Buffer.concat([asset, buf])
-      buf = tmpBuf
-      size += asset.length
-    }
-
-    const gSize = await gzipSize(buf)
-
-    str.push(`${toUpper(result.module)}: ${prettyBytes(size)} (${prettyBytes(gSize)} gzipped)`)
-  }
-
-  logger.log(str.join('\n'))
-}
-
-export const build = async () => {
-  await clean()
-
-  const results: BuildResult[] = []
-
-  results.push(await gulpBuild())
-
-  const wbp = (module: 'cjs' | 'umd') =>
-    // tslint:disable-next-line promise-must-complete
-    new Promise<BuildResult>(resolve => webpackBuild(module, resolve)).then(res =>
-      results.push(res)
-    )
-
-  await Promise.all(map(without(modules(store.getState()), 'esm'), wbp))
-
-  const fail = filter(results, result => result.hasErrors)
-
-  if (!isEmpty(fail)) {
-    await dispatchFilesFromErrors()
-    reportErrors()
-
-    forEach(uniq(flatten(map(fail, f => f.errors))), str => logger.error(str))
-
-    throw new Error('Recce could not finish the build')
-  }
-
-  return report(results)
-}
-
-export const parseFlags = async (flags: {
+export const build = async (flags: {
   entry: string[]
   clean: boolean
   minimize: boolean
@@ -118,15 +51,15 @@ export const parseFlags = async (flags: {
     map(isUndefined(flags.entry) ? [] : uniq(compact(flags.entry)), file => realpathAsync(file))
   )
 
-  let _modules: BuildModules
+  let buildModules: BuildModules
 
   if (isString(flags.module)) {
-    _modules = [flags.module as BuildModule]
+    buildModules = [flags.module as BuildModule]
   } else {
     const hasEntry = !isEmpty(entries)
     const defaultModules: BuildModules = hasEntry ? ['esm', 'cjs', 'umd'] : ['esm']
 
-    _modules = uniq(
+    buildModules = uniq(
       filter(
         isUndefined(flags.module)
           ? defaultModules
@@ -135,7 +68,7 @@ export const parseFlags = async (flags: {
       )
     )
 
-    if (!hasEntry && some(_modules, t => t !== 'esm')) {
+    if (!hasEntry && some(buildModules, t => t !== 'esm')) {
       throw new Error('Specify at least one entry for CommonJS and UMD builds')
     }
   }
@@ -160,8 +93,14 @@ export const parseFlags = async (flags: {
       entries,
       minimize,
       outputPath,
-      modules: _modules,
+      modules: buildModules,
       stats: flags.stats
     })
   )
+
+  await clean()
+  await gulpBuild()
+  await Promise.all(map(without(modules(store.getState()), 'esm'), webpackBuild))
+  await writeStats()
+  await report()
 }

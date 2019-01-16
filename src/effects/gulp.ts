@@ -8,7 +8,7 @@ import resolveFrom = require('resolve-from')
 import sourcemaps = require('gulp-sourcemaps')
 import typescript = require('gulp-typescript')
 import { BuildResult } from '../types'
-import { SET_ROOTDIR } from '../actions'
+import { BUILD_RESULT, SET_ROOTDIR } from '../actions'
 import { compact, includes, isUndefined, noop } from 'lodash'
 import { normalizeGulpError } from './errors'
 import { store } from '../store'
@@ -23,7 +23,7 @@ import {
   tsconfig
 } from '../selectors'
 
-export const gulpBuild = async (): Promise<BuildResult> => {
+export const gulpBuild = async () => {
   const state = store.getState()
   const compiler = await import(resolveFrom(contextModules(state), 'typescript'))
 
@@ -32,7 +32,8 @@ export const gulpBuild = async (): Promise<BuildResult> => {
       module: 'esm',
       assets: [],
       errors: [],
-      hasErrors: false
+      hasErrors: false,
+      stats: undefined
     }
 
     const project = typescript.createProject(tsconfig(state), {
@@ -124,5 +125,5 @@ export const gulpBuild = async (): Promise<BuildResult> => {
 
         resolve(result)
       })
-  })
+  }).then(result => store.dispatch(BUILD_RESULT(result)))
 }

@@ -34,15 +34,9 @@ describe('failure modes', () => {
 
   test
     .stdout()
-    .command(['build', '-p', fixtureA, '-m', 'cjs'])
-    .catch(/Specify at least one entry for CommonJS and UMD builds/)
-    .it('throws on target cjs and no entry')
-
-  test
-    .stdout()
-    .command(['build', '-p', fixtureA, '-m', 'umd'])
-    .catch(/Specify at least one entry for CommonJS and UMD builds/)
-    .it('throws on target umd and no entry')
+    .command(['build', '-p', fixtureA, '--stats', 'lib/asd.json'])
+    .catch(/The 'stats' options must be a filename, not a path/)
+    .it('throws on invalid stats option')
 })
 
 describe('one entry', () => {
@@ -128,5 +122,8 @@ describe('two entries', () => {
       '-e',
       'src/world.ts'
     ])
-    .it('', async () => compare(join(fixtureA, 'lib'), join(fixtureA, 'expected/case-2')))
+    .it(
+      'build -p [directory] --no-minimize -m cjs -m umd -e src/hello.ts -e src/world.ts',
+      async () => compare(join(fixtureA, 'lib'), join(fixtureA, 'expected/case-2'))
+    )
 })

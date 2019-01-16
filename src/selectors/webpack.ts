@@ -2,7 +2,7 @@ import TerserPlugin = require('terser-webpack-plugin')
 import lodashPlugin = require('lodash-webpack-plugin')
 import nodeExternals = require('webpack-node-externals')
 import resolveFrom = require('resolve-from')
-import { DoneHookWebpackPlugin, FilterWebpackPlugin, StatsWriterPlugin } from '../plugins'
+import { DoneHookWebpackPlugin, FilterWebpackPlugin } from '../plugins'
 import { createSelector } from 'reselect'
 import { parse, relative, resolve } from 'path'
 import { camelCase, compact, fromPairs, map } from 'lodash'
@@ -123,8 +123,7 @@ export const webpackConfiguration = (module: 'cjs' | 'umd') => (
       : undefined,
     new FilterWebpackPlugin({
       patterns: ['*.d.ts']
-    }),
-    new StatsWriterPlugin()
+    })
   ]),
   resolve: {
     plugins: [

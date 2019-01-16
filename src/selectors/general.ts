@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { join, resolve } from 'path'
-import { assign, find, map } from 'lodash'
+import { assign, filter, find, map } from 'lodash'
 
 import {
   BuildModules,
@@ -26,13 +26,19 @@ export const rootModules = (state: State): string => state.options.prefix.root
 export const modules = (state: State): BuildModules => state.options.modules
 
 export const declaration = (state: State): boolean => !!state.options.compilerOptions.declaration
-export const errors = (state: State): { [key: string]: TypescriptErrorRecord } =>
+export const tsErrors = (state: State): { [key: string]: TypescriptErrorRecord } =>
   state.runtime.errors
 export const files = (state: State) => state.runtime.files
 export const mode = (state: State) => state.options.mode
 
+export const buildResults = (state: State) => state.runtime.build
+export const buildResultsWithErrors = createSelector(
+  buildResults,
+  results => filter(results, result => result.hasErrors)
+)
+
 export const stats = (m: 'cjs' | 'umd') => (state: State) => {
-  const found = find(state.runtime.stats, ab => ab.module === m)
+  const found = find(buildResults(state), ab => ab.module === m)
 
   return found === undefined ? undefined : found.stats
 }

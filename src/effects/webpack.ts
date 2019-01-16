@@ -4,15 +4,17 @@ import { BuildResult } from '../types'
 import { compact, concat, filter, isNull, isUndefined, map, noop } from 'lodash'
 import { condBuild, condWatch, webpackConfiguration } from '../selectors'
 import { store } from '../store'
+import { BUILD_RESULT } from '../actions'
 
 export const webpackBuild = async (
-  module: 'cjs' | 'umd',
-  cb: (result: BuildResult) => void = noop
+  module: 'cjs' | 'umd'
 ): Promise<{
   compiler: webpack.Compiler
   close: () => void
   invalidate: () => void
 }> => {
+  const callback = (result: BuildResult) => store.dispatch(BUILD_RESULT(result))
+
   const configuration = webpackConfiguration(module)(store.getState())
 
   const compiler = webpack(configuration)
@@ -40,18 +42,18 @@ export const webpackBuild = async (
   }>(resolve => {
     const watching: webpack.Compiler.Watching | undefined = method(
       // tslint:disable-next-line no-any
-      (err: null | Error & { details?: string }, stats: any) => {
+      (err: null | Error & { details?: string }, stats) => {
         const result: BuildResult = {
           module,
           assets: [],
           errors: [],
-          hasErrors: false
+          hasErrors: false,
+          stats: undefined
         }
 
-        const info = stats.toJson({
-          assets: true,
-          errors: true
-        })
+        const info = stats.toJson()
+
+        result.stats = info
 
         if (!isNull(err) || stats.hasErrors() === true) {
           result.hasErrors = true
@@ -69,7 +71,7 @@ export const webpackBuild = async (
             invalidate: isUndefined(watching) ? noop : watching.invalidate
           })
 
-          cb(result)
+          callback(result)
         } else {
           result.assets = filter(
             map(info.assets, asset => path.join(info.outputPath, asset.name)),
@@ -82,7 +84,7 @@ export const webpackBuild = async (
             invalidate: isUndefined(watching) ? noop : watching.invalidate
           })
 
-          cb(result)
+          callback(result)
         }
       }
     )
