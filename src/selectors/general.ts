@@ -70,6 +70,10 @@ export const outputPathCjs = createSelector(
 )
 
 export const statsFilename = (state: State) => state.options.stats
+export const condStats = createSelector(
+  statsFilename,
+  a => a !== undefined
+)
 
 export const outputPathUmd = createSelector(
   outputPath,

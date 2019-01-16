@@ -4,6 +4,7 @@ import { Package } from 'normalize-package-data'
 import { Node as NodeOptions } from 'webpack'
 import { Options as LodashOptions } from 'lodash-webpack-plugin'
 import { MinifyOptions } from 'terser-webpack-plugin'
+// import { CompilerOptions } from 'typescript'
 
 export interface TypescriptError {
   code: number
@@ -104,3 +105,5 @@ export interface BuildResult {
 export { MinifyOptions } from 'terser-webpack-plugin'
 export { Node as NodeOptions } from 'webpack'
 export { Options as LodashOptions } from 'lodash-webpack-plugin'
+
+// export { CompilerOptions } from 'typescript'

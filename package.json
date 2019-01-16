@@ -39,6 +39,7 @@
     "micromatch": "3.1.10",
     "node-object-hash": "1.4.1",
     "normalize-package-data": "2.4.0",
+    "ora": "3.0.0",
     "pkg-up": "2.0.0",
     "pretty-bytes": "5.1.0",
     "redux": "4.0.1",
@@ -60,6 +61,7 @@
   "devDependencies": {
     "@commitlint/cli": "7.3.2",
     "@commitlint/config-conventional": "7.3.1",
+    "@types/ora": "3.0.0",
     "@oclif/dev-cli": "1.21.0",
     "@oclif/test": "1.2.2",
     "@oclif/tslint": "3.1.1",
@@ -102,23 +104,14 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [
-    ".oclif.manifest.json",
-    "/bin",
-    "/lib"
-  ],
+  "files": [".oclif.manifest.json", "/bin", "/lib"],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": [
-    "TypeScript",
-    "build"
-  ],
+  "keywords": ["TypeScript", "build"],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
+    "plugins": ["@oclif/plugin-help"]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -127,10 +120,7 @@
       "prettier --write",
       "git add"
     ],
-    "{src,test}/**/*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "{src,test}/**/*.js": ["prettier --write", "git add"]
   },
   "husky": {
     "hooks": {
@@ -140,22 +130,11 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "test/**/*.test.ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text"
-    ],
+    "include": ["src/**/*.ts"],
+    "extension": [".ts", ".tsx"],
+    "exclude": ["test/**/*.test.ts"],
+    "require": ["ts-node/register"],
+    "reporter": ["text"],
     "sourceMap": true,
     "instrument": true
   },

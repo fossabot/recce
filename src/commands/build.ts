@@ -22,7 +22,8 @@ export default class Build extends Command {
       char: 'm',
       description: 'module code generation (esm is always enabled)',
       multiple: true,
-      options: ['cjs', 'umd'],
+      options: ['cjs', 'umd', 'esm'],
+      default: 'esm',
       required: false
     }),
     ...pick(commandFlags, ['entry', 'output', 'minimize', 'clean', 'stats'])

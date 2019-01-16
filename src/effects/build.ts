@@ -1,13 +1,14 @@
 import path from 'path'
 import { BuildModule, BuildModules } from '../types'
 import { SET_BUILD_OPTIONS } from '../actions'
-import { context, modules } from '../selectors'
+import { condClean, condStats, context, modules } from '../selectors'
 import { clean, compilerOptions, realpathAsync } from '../utilities'
 import { gulpBuild } from './gulp'
 import { store } from '../store'
 import { webpackBuild } from './webpack'
 import { writeStats } from './stats'
 import { report } from './report'
+import ora from 'ora'
 
 import {
   compact,
@@ -21,22 +22,6 @@ import {
   uniq,
   without
 } from 'lodash'
-
-// const buildTitle = (props: { target: BuildTarget }): string => {
-//   const { target } = props
-//
-//   switch (target) {
-//     case 'cjs': {
-//       return 'CommonJS modules'
-//     }
-//     case 'umd': {
-//       return 'UMD (Universal Module Definition) modules'
-//     }
-//     case 'esm': {
-//       return 'ECMAScript 6 modules'
-//     }
-//   }
-// }
 
 export const build = async (flags: {
   entry: string[]
@@ -98,9 +83,51 @@ export const build = async (flags: {
     })
   )
 
-  await clean()
-  await gulpBuild()
-  await Promise.all(map(without(modules(store.getState()), 'esm'), webpackBuild))
+  const spinner = ora({
+    spinner: 'line',
+    color: 'white'
+  }).start()
+
+  const updateSpinner = (text: string) => {
+    // spinner.text = text
+    spinner.stopAndPersist({
+      symbol: '✓',
+      text
+    })
+    // spinner.succeed(text)
+    spinner.start('')
+  }
+
+  await clean().then(() => {
+    if (condClean(store.getState())) {
+      updateSpinner('Cleaned the output directory')
+    }
+  })
+
+  await gulpBuild().then(() => updateSpinner('Completed the ES Module build'))
+
+  await Promise.all(
+    map(without(modules(store.getState()), 'esm'), mod =>
+      webpackBuild(mod as 'cjs' | 'umd').then(() =>
+        updateSpinner(
+          mod === 'cjs'
+            ? 'Completed the CommonJS build'
+            : 'Completed the UMD (Universal Module Definition) build'
+        )
+      )
+    )
+  )
+
   await writeStats()
+    .then(() => {
+      if (
+        condStats(store.getState()) &&
+        !(buildModules.length === 1 && buildModules[0] === 'esm')
+      ) {
+        updateSpinner('Saved the compilation statistics')
+      }
+    })
+    .then(() => spinner.stop())
+
   await report()
 }
