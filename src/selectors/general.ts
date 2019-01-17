@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { join, resolve } from 'path'
-import { assign, filter, find, map } from 'lodash'
+import { assign, filter, map } from 'lodash'
 
 import {
   BuildModules,
@@ -40,12 +40,6 @@ export const condBuildWithErrors = createSelector(
   a => a.length !== 0
 )
 
-export const stats = (m: 'cjs' | 'umd') => (state: State) => {
-  const found = find(buildResults(state), ab => ab.module === m)
-
-  return found === undefined ? undefined : found.stats
-}
-
 const _entries = (state: State): string[] => state.options.entries
 
 export const entries = createSelector(
@@ -72,27 +66,10 @@ export const outputPathCjs = createSelector(
   o => join(o, 'cjs')
 )
 
-export const statsFilename = (state: State) => state.options.stats
-export const condStats = createSelector(
-  statsFilename,
-  a => a !== undefined
-)
-
 export const outputPathUmd = createSelector(
   outputPath,
   o => join(o, 'umd')
 )
-
-export const outputPathStats = (m: 'cjs' | 'umd') => {
-  const handler = (c: string, d: string | undefined) => (d === undefined ? undefined : join(c, d))
-  const selector = m === 'cjs' ? outputPathCjs : outputPathUmd
-
-  return createSelector(
-    selector,
-    statsFilename,
-    handler
-  )
-}
 
 export const outputPathTypes = createSelector(
   outputPath,

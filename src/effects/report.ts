@@ -1,12 +1,17 @@
+// import path from 'path'
 import gzipSize = require('gzip-size')
 import prettyBytes = require('pretty-bytes')
-import { buildResults, buildResultsWithErrors, machineReadable } from '../selectors'
+import {
+  buildResults,
+  buildResultsWithErrors,
+  // compilationStats,
+  machineReadable
+} from '../selectors'
 import { readFileAsync } from '../utilities'
 import { dispatchFilesFromErrors, reportErrors } from './errors'
 import { logger } from '@escapace/logger'
 import { store } from '../store'
 import { BuildReports } from '../types'
-
 import { flatten, forEach, fromPairs, isEmpty, map, toUpper, uniq } from 'lodash'
 
 export const report = async () => {
@@ -53,19 +58,11 @@ export const report = async () => {
     // tslint:disable-next-line no-console
     console.log(JSON.stringify(reports, null, '  '))
   } else {
-    logger.log(
-      [
-        '',
-        ...map(
-          reports,
-          // tslint:disable-next-line no-shadowed-variable
-          ({ gzipSize, size }, key) =>
-            `${toUpper(key)}: ${prettyBytes(size)} (${prettyBytes(gzipSize)} gzipped)`
-        )
-      ].join('\n')
-    )
-  }
+    logger.log('')
 
-  // str.push(`${toupper(result.module)}: ${prettybytes(size)} (${prettybytes(gsize)} gzipped)`)
-  // logger.log()
+    // tslint:disable-next-line no-shadowed-variable
+    forEach(reports, ({ gzipSize, size }, key) => {
+      logger.log(`${toUpper(key)}: ${prettyBytes(size)} (${prettyBytes(gzipSize)} gzipped)`)
+    })
+  }
 }

@@ -5,7 +5,6 @@ export {
   condBuild,
   condBuildWithErrors,
   condClean,
-  condStats,
   condWatch,
   context,
   contextModules,
@@ -17,14 +16,14 @@ export {
   outputPath,
   outputPathCjs,
   outputPathEsm,
-  outputPathStats,
   outputPathTypes,
   outputPathUmd,
   packageName,
-  stats,
   tsErrors,
   tsconfig
 } from './general'
+
+export { compilationStats, condStats, outputPathStats } from './stats'
 
 export { webpackConfiguration } from './webpack'
 

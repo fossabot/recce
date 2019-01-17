@@ -104,14 +104,23 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [".oclif.manifest.json", "/bin", "/lib"],
+  "files": [
+    ".oclif.manifest.json",
+    "/bin",
+    "/lib"
+  ],
   "homepage": "https://github.com/escapace/recce",
-  "keywords": ["TypeScript", "build"],
+  "keywords": [
+    "TypeScript",
+    "build"
+  ],
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": ["@oclif/plugin-help"]
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
   },
   "repository": "escapace/recce",
   "lint-staged": {
@@ -120,7 +129,10 @@
       "prettier --write",
       "git add"
     ],
-    "{src,test}/**/*.js": ["prettier --write", "git add"]
+    "{src,test}/**/*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "husky": {
     "hooks": {
@@ -130,11 +142,22 @@
   },
   "nyc": {
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": ["src/**/*.ts"],
-    "extension": [".ts", ".tsx"],
-    "exclude": ["test/**/*.test.ts"],
-    "require": ["ts-node/register"],
-    "reporter": ["text"],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "test/**/*.test.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text"
+    ],
     "sourceMap": true,
     "instrument": true
   },

@@ -51,7 +51,9 @@ export const webpackBuild = async (
           stats: undefined
         }
 
-        const info = stats.toJson()
+        const info = stats.toJson({
+          all: true
+        })
 
         result.stats = info
 

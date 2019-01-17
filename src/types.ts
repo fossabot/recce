@@ -1,3 +1,5 @@
+/* tslint:disable no-any */
+
 import { AnyAction } from 'redux'
 import { IConfig as OclifConfig } from '@oclif/config'
 import { Package } from 'normalize-package-data'
@@ -23,7 +25,6 @@ export interface TypescriptErrorRecord {
 }
 
 export interface CompilerOptions {
-  // tslint:disable-next-line no-any
   [key: string]: any
 }
 
@@ -43,7 +44,7 @@ export type BuildModule = 'cjs' | 'umd' | 'esm'
 export type BuildModules = BuildModule[]
 
 export interface BuildReport {
-  files: string[]
+  assets: string[]
   size: number
   gzipSize: number
 }
@@ -111,12 +112,9 @@ export interface BuildResult {
   assets: string[]
   errors: string[]
   hasErrors: boolean
-  // tslint:disable-next-line no-any
   stats: any
 }
 
 export { MinifyOptions } from 'terser-webpack-plugin'
 export { Node as NodeOptions } from 'webpack'
 export { Options as LodashOptions } from 'lodash-webpack-plugin'
-
-// export { CompilerOptions } from 'typescript'
