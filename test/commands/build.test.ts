@@ -31,12 +31,6 @@ describe('failure modes', () => {
     .command(['build', '-p', fixtureZ])
     .catch(/The specified path does not exist/)
     .it('throws on invalid context')
-
-  test
-    .stdout()
-    .command(['build', '-p', fixtureA, '--stats', 'lib/asd.json'])
-    .catch(/The 'stats' options must be a filename, not a path/)
-    .it('throws on invalid stats option')
 })
 
 describe('one entry', () => {

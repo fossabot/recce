@@ -38,7 +38,7 @@ export const build = async (flags: {
   minimize: boolean
   module: string[] | string
   output: string | undefined
-  stats: string | undefined
+  stats: boolean
   'machine-readable': boolean
 }) => {
   const entries: string[] = await Promise.all(
@@ -75,12 +75,6 @@ export const build = async (flags: {
   const _clean = isUndefined(flags.clean) ? true : flags.clean
   const minimize = isUndefined(flags.minimize) ? true : flags.minimize
 
-  if (!isUndefined(flags.stats)) {
-    if (path.basename(flags.stats) !== flags.stats) {
-      throw new Error("The 'stats' options must be a filename, not a path")
-    }
-  }
-
   const compilerOptions = await parseCompilerOptions()
 
   if (!includes(['es6', 'es2015', 'esnext'], toLower(compilerOptions.module))) {
@@ -95,7 +89,7 @@ export const build = async (flags: {
       minimize,
       outputPath,
       modules: buildModules,
-      stats: flags.stats,
+      stats: !!flags.stats,
       machineReadable: !!flags['machine-readable']
     })
   )

@@ -3,7 +3,6 @@
 import Command from '../base'
 import { SET_MODE } from '../actions'
 import { pick } from 'lodash'
-import { flags } from '@oclif/command'
 import { commandFlags } from '../constants'
 
 export default class Build extends Command {
@@ -18,18 +17,15 @@ export default class Build extends Command {
 
   public static flags = {
     ...Command.flags,
-    module: flags.string({
-      char: 'm',
-      description: 'module code generation (esm is always enabled)',
-      multiple: true,
-      options: ['cjs', 'umd', 'esm'],
-      required: false
-    }),
-    'machine-readable': flags.boolean({
-      description: 'enables JSON output mode',
-      default: false
-    }),
-    ...pick(commandFlags, ['entry', 'output', 'minimize', 'clean', 'stats'])
+    ...pick(commandFlags, [
+      'entry',
+      'output',
+      'minimize',
+      'clean',
+      'stats',
+      'module',
+      'machine-readable'
+    ])
   }
 
   public static args = []

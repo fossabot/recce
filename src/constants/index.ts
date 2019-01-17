@@ -19,13 +19,24 @@ export const commandFlags = {
     description: '[default: true] minimize javascript',
     allowNo: true
   }),
-  stats: flags.string({
+  stats: flags.boolean({
     description: 'write JSON file(s) with compilation statistics',
-    required: false
+    default: false
   }),
   clean: flags.boolean({
     description: '[default: true] clean output directory',
     allowNo: true
+  }),
+  module: flags.string({
+    char: 'm',
+    description: 'module code generation (esm is always enabled)',
+    multiple: true,
+    options: ['cjs', 'umd', 'esm'],
+    required: false
+  }),
+  'machine-readable': flags.boolean({
+    description: 'enables JSON output mode',
+    default: false
   })
 }
 

@@ -74,7 +74,7 @@ export interface Options {
   outputPath: string
   minimize: boolean
   clean: boolean
-  stats: string | undefined
+  stats: boolean
   context: string
   tsconfig: string
   prefix: Prefix

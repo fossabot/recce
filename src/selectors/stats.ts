@@ -4,23 +4,13 @@ import { State } from '../types'
 import { find } from 'lodash'
 import path = require('path')
 
-export const statsFilename = (state: State) => state.options.stats
-export const condStats = createSelector(
-  statsFilename,
-  a => a !== undefined
-)
+export const condStats = (state: State) => state.options.stats
 
-export const outputPathStats = (m: 'cjs' | 'umd') => {
-  const handler = (c: string, d: string | undefined) =>
-    d === undefined ? undefined : path.join(c, d)
-  const selector = m === 'cjs' ? outputPathCjs : outputPathUmd
-
-  return createSelector(
-    selector,
-    statsFilename,
-    handler
+export const outputPathStats = (m: 'cjs' | 'umd') =>
+  createSelector(
+    m === 'cjs' ? outputPathCjs : outputPathUmd,
+    (c: string) => path.join(c, 'stats.json')
   )
-}
 
 export const compilationStats = (m: 'cjs' | 'umd') => (state: State) => {
   const found = find(buildResults(state), ab => ab.module === m)
