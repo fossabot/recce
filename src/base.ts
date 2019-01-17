@@ -27,16 +27,6 @@ export default abstract class extends Command {
       char: 'p',
       description: "path to 'tsconfig.json', or to a folder with it",
       required: false
-    }),
-    verbose: flags.boolean({
-      hidden: true,
-      description: 'show more details',
-      allowNo: false
-    }),
-    quiet: flags.boolean({
-      char: 'q',
-      allowNo: false,
-      description: "don't output anything"
     })
   }
 
@@ -52,12 +42,6 @@ export default abstract class extends Command {
   public async init() {
     // tslint:disable-next-line no-any no-shadowed-variable
     const { flags } = this.parse(this.constructor as any)
-
-    if (flags.quiet) {
-      logger.level = 'silent'
-    } else if (flags.verbose || process.env.TEST_OUTPUT === '1') {
-      logger.level = 'verbose'
-    }
 
     store.dispatch(RESET(undefined))
     store.dispatch(SET_OCLIF_CONFIG(this.config))
