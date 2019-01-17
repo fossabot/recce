@@ -46,7 +46,6 @@ OPTIONS
   -h, --help             show CLI help
   -o, --output=output    [default: api.json] output json file path
   -p, --project=project  path to 'tsconfig.json', or to a folder with it
-  -q, --quiet            don't output anything
 
 EXAMPLE
   $ recce api-extract -p [directory] -e lib/hello.d.ts
@@ -68,7 +67,6 @@ OPTIONS
   -m, --module=cjs|umd|esm  module code generation (esm is always enabled)
   -o, --output=output       [default: lib] output directory path
   -p, --project=project     path to 'tsconfig.json', or to a folder with it
-  -q, --quiet               don't output anything
   --[no-]clean              [default: true] clean output directory
   --machine-readable        enables JSON output mode
   --[no-]minimize           [default: true] minimize javascript
