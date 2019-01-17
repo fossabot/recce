@@ -1,7 +1,14 @@
 import path from 'path'
 import { BuildModule, BuildModules } from '../types'
 import { SET_BUILD_OPTIONS } from '../actions'
-import { condBuildWithErrors, condClean, condStats, context, modules } from '../selectors'
+import {
+  condBuildWithErrors,
+  condClean,
+  condStats,
+  context,
+  machineReadable,
+  modules
+} from '../selectors'
 import { clean, compilerOptions as parseCompilerOptions, realpathAsync } from '../utilities'
 import { gulpBuild } from './gulp'
 import { store } from '../store'
@@ -32,6 +39,7 @@ export const build = async (flags: {
   module: string[] | string
   output: string | undefined
   stats: string | undefined
+  'machine-readable': boolean
 }) => {
   const entries: string[] = await Promise.all(
     // tslint:disable-next-line no-unnecessary-callback-wrapper
@@ -87,13 +95,14 @@ export const build = async (flags: {
       minimize,
       outputPath,
       modules: buildModules,
-      stats: flags.stats
+      stats: flags.stats,
+      machineReadable: !!flags['machine-readable']
     })
   )
 
-  const isTest = process.env.TEST_OUTPUT === 'true'
+  const nonInteractive = process.env.TEST_OUTPUT === 'true' || machineReadable(store.getState())
 
-  const spinner = isTest
+  const spinner = nonInteractive
     ? null
     : ora({
         spinner: 'line',

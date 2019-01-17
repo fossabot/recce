@@ -42,6 +42,18 @@ export { AnyAction } from 'redux'
 export type BuildModule = 'cjs' | 'umd' | 'esm'
 export type BuildModules = BuildModule[]
 
+export interface BuildReport {
+  files: string[]
+  size: number
+  gzipSize: number
+}
+
+export interface BuildReports {
+  umd: BuildReport
+  cjs: BuildReport
+  esm: BuildReport
+}
+
 export interface FileSource {
   file: string
   source: string
@@ -66,6 +78,7 @@ export interface Options {
   tsconfig: string
   prefix: Prefix
   pjson: PackageJson
+  machineReadable: boolean
 }
 
 export type Mode = 'build' | 'api-extract'

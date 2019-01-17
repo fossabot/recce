@@ -12,6 +12,7 @@ export {
   declaration,
   entries,
   files,
+  machineReadable,
   modules,
   outputPath,
   outputPathCjs,

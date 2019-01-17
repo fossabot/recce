@@ -23,8 +23,11 @@ export default class Build extends Command {
       description: 'module code generation (esm is always enabled)',
       multiple: true,
       options: ['cjs', 'umd', 'esm'],
-      default: 'esm',
       required: false
+    }),
+    'machine-readable': flags.boolean({
+      description: 'enables JSON output mode',
+      default: false
     }),
     ...pick(commandFlags, ['entry', 'output', 'minimize', 'clean', 'stats'])
   }
