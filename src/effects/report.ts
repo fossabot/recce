@@ -53,14 +53,19 @@ export const report = async () => {
     // tslint:disable-next-line no-console
     console.log(JSON.stringify(reports, null, '  '))
   } else {
-    // tslint:disable-next-line no-shadowed-variable
-    forEach(reports, ({ gzipSize, size }, key) =>
-      logger.log(`${toUpper(key)}: ${prettyBytes(size)} (${prettyBytes(gzipSize)} gzipped)`)
+    logger.log(
+      [
+        '',
+        ...map(
+          reports,
+          // tslint:disable-next-line no-shadowed-variable
+          ({ gzipSize, size }, key) =>
+            `${toUpper(key)}: ${prettyBytes(size)} (${prettyBytes(gzipSize)} gzipped)`
+        )
+      ].join('\n')
     )
   }
 
-  // const str: string[] = []
-
   // str.push(`${toupper(result.module)}: ${prettybytes(size)} (${prettybytes(gsize)} gzipped)`)
-  // logger.log(str.join('\n'))
+  // logger.log()
 }
