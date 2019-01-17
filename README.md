@@ -70,7 +70,7 @@ OPTIONS
   --[no-]clean              [default: true] clean output directory
   --machine-readable        enables JSON output mode
   --[no-]minimize           [default: true] minimize javascript
-  --stats=stats             write JSON file(s) with compilation statistics
+  --stats                   write JSON file(s) with compilation statistics
 
 EXAMPLES
   $ recce build -p [directory] -m esm -e src/hello.ts

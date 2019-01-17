@@ -18,13 +18,13 @@ export default class Build extends Command {
   public static flags = {
     ...Command.flags,
     ...pick(commandFlags, [
-      'entry',
-      'output',
-      'minimize',
       'clean',
-      'stats',
+      'entry',
+      'machine-readable',
+      'minimize',
       'module',
-      'machine-readable'
+      'output',
+      'stats'
     ])
   }
 
