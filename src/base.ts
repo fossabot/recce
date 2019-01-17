@@ -1,9 +1,8 @@
 import findNpmPerfix = require('find-npm-prefix')
 import { Command, flags } from '@oclif/command'
-import { LoggerLevel, LoggerMethod, logger } from '@escapace/logger'
 import { State } from './types'
 import { Store } from 'redux'
-import { bind, filter, get, isUndefined } from 'lodash'
+import { filter, isUndefined } from 'lodash'
 import { dirname, join, resolve } from 'path'
 import { packageJson } from './utilities/packageJson'
 import { isFile } from './utilities/isFile'
@@ -31,13 +30,6 @@ export default abstract class extends Command {
   }
 
   public store: Store<State> = store
-
-  // tslint:disable-next-line no-any
-  public log(message: any, level: 'log' | LoggerLevel = 'log') {
-    const method: LoggerMethod = bind(get(logger, level), logger)
-
-    method(message)
-  }
 
   public async init() {
     // tslint:disable-next-line no-any no-shadowed-variable
