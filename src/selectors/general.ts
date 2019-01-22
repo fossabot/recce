@@ -91,7 +91,7 @@ export const dependencies = createSelector(
 )
 export const devDependencies = createSelector(
   packageJson,
-  pj => pj.dependencies
+  pj => pj.devDependencies
 )
 export const combinedDependencies = createSelector(
   devDependencies,
