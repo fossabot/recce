@@ -18,7 +18,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/1.8.3 darwin-x64 node-v11.1.0
+recce/1.8.4 darwin-x64 node-v11.1.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
@@ -51,7 +51,7 @@ EXAMPLE
   $ recce api-extract -p [directory] -e lib/hello.d.ts
 ```
 
-_See code: [lib/commands/api-extract.js](https://github.com/escapace/recce/blob/v1.8.3/lib/commands/api-extract.js)_
+_See code: [lib/commands/api-extract.js](https://github.com/escapace/recce/blob/v1.8.4/lib/commands/api-extract.js)_
 
 ## `recce build`
 
@@ -79,7 +79,7 @@ EXAMPLES
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
-_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v1.8.3/lib/commands/build.js)_
+_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v1.8.4/lib/commands/build.js)_
 
 ## `recce help [COMMAND]`
 
@@ -96,5 +96,5 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.4/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
 <!-- commandsstop -->
