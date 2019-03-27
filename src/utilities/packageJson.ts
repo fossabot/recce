@@ -17,7 +17,7 @@ export const packageJson = async (
     throw new Error(`${cwd}: No such directory`)
   }
 
-  const path = await pkgUp(cwd)
+  const path = await pkgUp({ cwd })
 
   if (!isNull(path)) {
     return {

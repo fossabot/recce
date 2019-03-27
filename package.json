@@ -40,7 +40,7 @@
     "node-object-hash": "1.4.2",
     "normalize-package-data": "2.5.0",
     "ora": "3.2.0",
-    "pkg-up": "2.0.0",
+    "pkg-up": "3.0.1",
     "pretty-bytes": "5.1.0",
     "redux": "4.0.1",
     "reselect": "4.0.0",
