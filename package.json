@@ -81,7 +81,7 @@
     "@types/normalize-package-data": "2.4.0",
     "@types/pretty-bytes": "5.1.0",
     "@types/rimraf": "2.0.2",
-    "@types/semver": "5.5.0",
+    "@types/semver": "6.0.0",
     "@types/webpack": "4.4.26",
     "@types/webpack-node-externals": "1.6.3",
     "chai": "4.2.0",
