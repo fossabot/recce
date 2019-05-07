@@ -76,7 +76,7 @@ export const webpackBuild = async (
           callback(result)
         } else {
           result.assets = filter(
-            map(info.assets, asset => path.join(info.outputPath, asset.name)),
+            map(info.assets, asset => path.join(info.outputPath as string, asset.name)),
             p => !/\.js\.map/.test(p)
           )
 

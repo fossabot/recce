@@ -40,20 +40,6 @@ export const commandFlags = {
   })
 }
 
-export const apiExtractFlags = {
-  entry: flags.string({
-    char: 'e',
-    description: 'd.ts entry point',
-    multiple: false,
-    required: true
-  }),
-  output: flags.string({
-    char: 'o',
-    description: '[default: api.json] output json file path',
-    required: false
-  })
-}
-
 const TS_COMPILER_OPTIONS: CompilerOptions = {
   downlevelIteration: true,
   importHelpers: true,
@@ -120,9 +106,9 @@ const MINIFY_OPTIONS: MinifyOptions = {
   },
   mangle: true,
   module: false,
-  output: null,
+  output: undefined,
   toplevel: false,
-  nameCache: null,
+  nameCache: undefined,
   ie8: false,
   keep_classnames: undefined,
   keep_fnames: false,

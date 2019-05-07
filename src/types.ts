@@ -82,7 +82,7 @@ export interface Options {
   machineReadable: boolean
 }
 
-export type Mode = 'build' | 'api-extract'
+export type Mode = 'build'
 
 export interface State {
   oclifConfig: OclifConfig
