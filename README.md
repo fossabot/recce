@@ -18,7 +18,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/1.9.0 darwin-x64 node-v11.1.0
+recce/2.0.0 darwin-x64 node-v12.1.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
@@ -29,29 +29,8 @@ USAGE
 # Commands
 
 <!-- commands -->
-* [`recce api-extract`](#recce-api-extract)
 * [`recce build`](#recce-build)
 * [`recce help [COMMAND]`](#recce-help-command)
-
-## `recce api-extract`
-
-Extract API from declaration files
-
-```
-USAGE
-  $ recce api-extract
-
-OPTIONS
-  -e, --entry=entry      (required) d.ts entry point
-  -h, --help             show CLI help
-  -o, --output=output    [default: api.json] output json file path
-  -p, --project=project  path to 'tsconfig.json', or to a folder with it
-
-EXAMPLE
-  $ recce api-extract -p [directory] -e lib/hello.d.ts
-```
-
-_See code: [lib/commands/api-extract.js](https://github.com/escapace/recce/blob/v1.9.0/lib/commands/api-extract.js)_
 
 ## `recce build`
 
@@ -79,7 +58,7 @@ EXAMPLES
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
 
-_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v1.9.0/lib/commands/build.js)_
+_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v2.0.0/lib/commands/build.js)_
 
 ## `recce help [COMMAND]`
 
