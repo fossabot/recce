@@ -1,4 +1,10 @@
+dist: xenial
+addons:
+  apt:
+    packages:
+    - dirmngr
 before_install:
+- git config --global gpg.program gpg2
 - npm install -g npm
 install: npm install
 script:
