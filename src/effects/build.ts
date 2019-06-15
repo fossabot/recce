@@ -132,15 +132,20 @@ export const build = async (flags: {
     .then(() => updateSpinner('Completed the ES Module build'))
     .then(() =>
       Promise.all(
-        map(without(modules(store.getState()), 'esm'), mod =>
-          webpackBuild(mod as 'cjs' | 'umd').then(() =>
+        map(without(modules(store.getState()), 'esm'), mod => {
+          // tslint:disable-next-line: no-any
+          const p: Promise<any> = condBuildWithErrors(store.getState())
+            ? Promise.resolve()
+            : webpackBuild(mod as 'cjs' | 'umd')
+
+          return p.then(() =>
             updateSpinner(
               mod === 'cjs'
                 ? 'Completed the CommonJS build'
                 : 'Completed the UMD (Universal Module Definition) build'
             )
           )
-        )
+        })
       )
     )
     .then(writeStats)

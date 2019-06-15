@@ -12,7 +12,7 @@ import { dispatchFilesFromErrors, reportErrors } from './errors'
 import { logger } from '@escapace/logger'
 import { store } from '../store'
 import { BuildReports } from '../types'
-import { flatten, forEach, fromPairs, isEmpty, map, toUpper, uniq } from 'lodash'
+import { forEach, fromPairs, isEmpty, map, toUpper } from 'lodash'
 
 export const report = async () => {
   const results = buildResults(store.getState())
@@ -22,7 +22,7 @@ export const report = async () => {
     await dispatchFilesFromErrors()
     reportErrors()
 
-    forEach(uniq(flatten(map(fail, f => f.errors))), s => logger.error(s))
+    // forEach(uniq(flatten(map(fail, f => f.errors))), s => logger.error(s))
 
     throw new Error('Recce could not finish the build')
   }
