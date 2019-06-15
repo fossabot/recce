@@ -180,9 +180,10 @@
   },
   "repository": "escapace/recce",
   "scripts": {
-    "build": "rimraf lib && tsc && oclif-dev manifest && oclif-dev readme",
+    "build": "rimraf lib && tsc",
     "lint": "tslint -p . -t stylish && tslint -p test -t stylish",
     "postpack": "rimraf .oclif.manifest.json",
+    "postversion": "oclif-dev manifest && oclif-dev readme && git add README.md",
     "prepack": "npm run build",
     "pretest": "./manage prepare-test-fixtures",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov ; rimraf coverage.lcov",
