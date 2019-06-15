@@ -26,7 +26,7 @@
     "find-npm-prefix": "1.0.2",
     "gulp": "github:gulpjs/gulp#v4.0.2",
     "gulp-babel": "8.0.0",
-    "gulp-filter": "5.1.0",
+    "gulp-filter": "6.0.0",
     "gulp-sourcemaps": "2.6.5",
     "gulp-tap": "1.0.1",
     "gulp-typescript": "5.0.1",
