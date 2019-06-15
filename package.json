@@ -104,7 +104,11 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "files": [".oclif.manifest.json", "/bin", "/lib"],
+  "files": [
+    ".oclif.manifest.json",
+    "/bin",
+    "/lib"
+  ],
   "homepage": "https://github.com/escapace/recce",
   "husky": {
     "hooks": {
@@ -112,23 +116,37 @@
       "pre-commit": "lint-staged && npm run typecheck && npm run test:coverage"
     }
   },
-  "keywords": ["TypeScript", "build"],
+  "keywords": [
+    "TypeScript",
+    "build"
+  ],
   "license": "MPL-2.0",
   "lint-staged": {
-    "package.json": ["syncpack-format --source", "syncpack-set-semver-ranges --dev --source"],
+    "package.json": [
+      "syncpack-format --source",
+      "syncpack-set-semver-ranges --dev --source"
+    ],
     "{src,test}/**/*.ts": [
       "tslint --exclude 'src/types/**/*.ts' --exclude 'test/**/*.ts' --project tsconfig.json --fix",
       "prettier --write",
       "git add"
     ],
-    "{src,test}/**/*.js": ["prettier --write", "git add"]
+    "{src,test}/**/*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "main": "lib/index.js",
   "nyc": {
     "cache": false,
     "tempDirectory": "./node_modules/.cache/nyc_output",
-    "include": ["src/**/*.ts"],
-    "extension": [".ts", ".tsx"],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
     "exclude": [
       "**/*.d.ts",
       "coverage/**",
@@ -139,15 +157,21 @@
       "**/__tests__/**",
       "**/node_modules/**"
     ],
-    "require": ["ts-node/register"],
-    "reporter": ["text"],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text"
+    ],
     "sourceMap": true,
     "instrument": true
   },
   "oclif": {
     "commands": "./lib/commands",
     "bin": "recce",
-    "plugins": ["@oclif/plugin-help"]
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
   },
   "private": false,
   "publishConfig": {
@@ -159,6 +183,7 @@
     "lint": "tslint -p . -t stylish && tslint -p test -t stylish",
     "postpack": "rimraf .oclif.manifest.json",
     "prepack": "npm run build",
+    "prepublishOnly": "oclif-dev manifest && oclif-dev readme",
     "pretest": "./manage prepare-test-fixtures",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov ; rimraf coverage.lcov",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
