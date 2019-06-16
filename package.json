@@ -181,7 +181,7 @@
   },
   "repository": "escapace/recce",
   "scripts": {
-    "build": "rimraf lib && tsc",
+    "build": "rimraf lib && tsc && oclif-dev manifest",
     "lint": "tslint -p . -t stylish && tslint -p test -t stylish",
     "postpack": "rimraf .oclif.manifest.json",
     "prepack": "npm run build",
