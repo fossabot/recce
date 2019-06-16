@@ -18,7 +18,7 @@ $ npm install -g recce
 $ recce COMMAND
 running command...
 $ recce (-v|--version|version)
-recce/2.0.0 darwin-x64 node-v12.1.0
+recce/2.1.4 linux-x64 node-v10.16.0
 $ recce --help [COMMAND]
 USAGE
   $ recce COMMAND
@@ -57,8 +57,6 @@ EXAMPLES
   $ recce build -m cjs -m umd -m esm -e src/hello.ts -e src/world.ts
   $ recce build --no-clean --no-minimize -m umd -e src/hello.ts
 ```
-
-_See code: [lib/commands/build.js](https://github.com/escapace/recce/blob/v2.0.0/lib/commands/build.js)_
 
 ## `recce help [COMMAND]`
 
